@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="theme-color" content="#fbfaf6">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Quran Hub">
+<link rel="stylesheet" href="shared-responsive.css">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>﷽</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<title>Quran Hub — Muslim Dashboard</title>
+<style>
+:root {
+  --gold: #B8860B; --gold-light: #DAA520; --gold-bg: rgba(218,165,32,0.08);
+  --gold-border: rgba(184,134,11,0.2); --bg: #fbfaf6; --bg-card: #ffffff;
+  --text: #1a1a1a; --text-muted: #6b7280; --text-light: #9ca3af;
+  --border: #e5e7eb; --radius: 12px; --radius-sm: 8px; --shadow: 0 1px 3px rgba(0,0,0,0.06);
+  --font-sans: 'DM Sans', system-ui, sans-serif;
+  --font-arabic: 'Amiri', 'Traditional Arabic', serif;
+  --bn-h: 64px; --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font-sans); background: var(--bg); color: var(--text);
+  line-height: 1.6; font-size: 14px; min-height: 100vh;
+}
+.dashboard { width: min(480px, 100vw - 1rem); margin: 0 auto; padding: 0 0 calc(var(--bn-h) + var(--safe-bottom) + 16px); }
+
+/* Responsive: waktu solat grid mengikut orientasi */
+@media (max-width: 360px) {
+  .waktu-grid { grid-template-columns: repeat(3, 1fr) !important; }
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  .dashboard { width: min(560px, 100vw - 0.5rem); }
+  .header { padding: 8px 12px !important; }
+  .solat-main { margin-bottom: 4px; }
+  .waktu-grid { gap: 3px; }
+  .waktu-item { padding: 3px 2px; }
+  .section { padding: 8px 12px; }
+  .salam { font-size: 15px; }
+  .rutin-item { gap: 6px; }
+  .rutin-detail { font-size: 12px; }
+}
+
+/* Header */
+.header {
+  background: var(--gold-bg); border-bottom: 1px solid var(--gold-border);
+  padding: 20px 20px 14px; text-align: center;
+}
+.hub-link {
+  font-size: 11px; text-decoration: none;
+  display: flex; align-items: center; gap: 4px;
+  color: var(--gold); margin-top: 8px;
+}
+.hub-link:hover { opacity: 0.8; }
+.salam { font-size: 18px; font-weight: 500; color: var(--gold); letter-spacing: 0.5px; margin-bottom: 4px; }
+.date-main { font-size: 13px; color: var(--text-muted); }
+.date-hijri { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+
+/* Section */
+.section { padding: 14px 20px; border-bottom: 1px solid var(--border); }
+.section:last-child { border-bottom: none; }
+.section-label {
+  font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px;
+  color: var(--text-muted); margin-bottom: 8px;
+}
+
+/* Solat */
+.solat-main {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
+}
+.solat-name { display: flex; align-items: center; gap: 10px; }
+.solat-icon {
+  width: 36px; height: 36px; border-radius: var(--radius-sm);
+  background: var(--gold-bg); border: 1px solid var(--gold-border);
+  display: flex; align-items: center; justify-content: center; font-size: 18px;
+}
+.solat-title { font-size: 17px; font-weight: 500; }
+.solat-time { font-size: 22px; font-weight: 500; color: var(--gold-light); }
+.countdown-text { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+.waktu-grid {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 10px;
+}
+.waktu-item {
+  text-align: center; padding: 6px 4px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: var(--bg-card);
+}
+.waktu-item.active {
+  border-color: var(--gold-border); background: var(--gold-bg);
+}
+.waktu-label { font-size: 10px; color: var(--text-light); margin-bottom: 2px; }
+.waktu-val { font-size: 12px; font-weight: 500; }
+.waktu-item.active .waktu-val { color: var(--gold-light); }
+.dynamic-bg {
+  transition: background 2s ease;
+}
+
+/* Ayat */
+.ayat-content {
+  display: none; flex-direction: column; gap: 8px;
+  background: var(--bg-card); border: 1px solid var(--gold-border);
+  border-radius: var(--radius); padding: 14px;
+}
+.ayat-content.show { display: flex; }
+.ayat-arabic {
+  font-family: var(--font-arabic); font-size: 20px; text-align: right;
+  line-height: 1.8; direction: rtl;
+}
+.ayat-translation {
+  font-size: 13px; color: var(--text-muted); line-height: 1.6; font-style: italic;
+}
+.ayat-ref { font-size: 11px; color: var(--text-light); }
+.loc-badge {
+  font-size: 10px; font-weight: 400; color: var(--text-muted);
+  cursor: pointer; float: right; display: flex; align-items: center; gap: 3px;
+  padding: 2px 8px; border-radius: 10px; border: 1px solid var(--border);
+  background: var(--bg-card); font-family: var(--font-sans);
+}
+.loc-badge:hover { border-color: var(--gold-light); color: var(--gold); }
+.zone-picker {
+  margin-top: 10px; padding: 10px; background: var(--bg-card);
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+}
+.zone-picker-row { display: flex; gap: 6px; align-items: center; }
+.zone-select {
+  flex: 1; font-size: 11px; padding: 5px 6px; border: 1px solid var(--border);
+  border-radius: 6px; font-family: var(--font-sans); background: var(--bg-card);
+}
+.zone-btn {
+  font-size: 11px; padding: 5px 12px; background: var(--gold); color: white;
+  border: none; border-radius: 6px; cursor: pointer; font-family: var(--font-sans); font-weight: 500;
+}
+.zone-btn:hover { opacity: 0.9; }
+.refresh-btn {
+  float: right; font-size: 11px; color: var(--text-muted); background: none;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 3px 10px; cursor: pointer; font-family: var(--font-sans);
+  transition: background 0.15s;
+}
+.refresh-btn:hover { background: var(--gold-bg); }
+
+/* Doa */
+.doa-card {
+  background: var(--bg-card); border: 1px solid var(--gold-border);
+  border-radius: var(--radius); padding: 14px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.doa-arabic {
+  font-family: var(--font-arabic); font-size: 16px; text-align: right;
+  direction: rtl; line-height: 1.7;
+}
+.doa-text { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+.doa-ref { font-size: 11px; color: var(--text-light); }
+
+/* Rutin */
+.rutin-list {
+  display: flex; flex-direction: column; gap: 10px;
+  background: var(--bg-card); border: 1px solid var(--gold-border);
+  border-radius: var(--radius); padding: 14px;
+}
+.rutin-item { display: flex; align-items: flex-start; gap: 10px; }
+.rutin-dot {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--gold-light);
+  flex-shrink: 0; margin-top: 6px;
+}
+.rutin-waktu { font-size: 11px; font-weight: 600; color: var(--gold); min-width: 48px; margin-top: 3px; }
+.rutin-detail { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+
+/* Peringatan */
+.reminder-card {
+  display: flex; align-items: center; min-height: 44px;
+  background: var(--bg-card); border: 1px solid var(--gold-border);
+  border-radius: var(--radius); padding: 14px;
+  font-size: 13px; color: var(--text-muted); line-height: 1.6;
+}
+
+/* Nav */
+.nav-bar {
+  display: flex; overflow-x: auto;
+  border-top: 1px solid var(--border); position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--bg-card); z-index: 100; padding-bottom: var(--safe-bottom);
+}
+.nav-item { flex: 1; min-width: 60px; }
+.nav-item {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 8px 4px 6px; gap: 2px; cursor: pointer; text-decoration: none;
+  color: var(--text-muted); transition: color 0.15s;
+}
+.nav-item:hover { color: var(--gold); }
+.nav-item .nav-icon { font-size: 20px; font-style: normal; }
+.nav-item.active { color: var(--gold); }
+.nav-item span { font-size: 10px; font-family: var(--font-sans); }
+.loading-data { color: var(--text-light); font-size: 12px; text-align: center; padding: 20px; }
+.offline-banner {
+  display: none; font-size: 11px; text-align: center; padding: 4px; background: #fce4ec;
+  color: #c62828; font-weight: 500;
+}
+.offline-banner.show { display: block; }
+.error-toast {
+  position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+  background: #1a1a1a; color: #fff; font-size: 12px; padding: 8px 16px;
+  border-radius: 8px; opacity: 0; transition: opacity 0.3s; z-index: 200;
+  max-width: 90%; text-align: center; pointer-events: none;
+}
+.error-toast.show { opacity: 1; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+</style>
+</head>
+<body>
+<div class="dashboard" id="app">
+  <div class="header">
+    <div class="salam" id="salam">السلام عليكم</div>
+    <div class="date-main" id="date-main">—</div>
+    <div class="date-hijri" id="date-hijri"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">
+      Waktu Solat
+      <span class="loc-badge" id="loc-badge" title="Klik tukar zon">📍 <span id="loc-name">Selangor · SGR01</span></span>
+    </div>
+    <div class="solat-main">
+      <div class="solat-name">
+        <div class="solat-icon">🕌</div>
+        <div>
+          <div class="solat-title" id="solat-title">—</div>
+          <div style="font-size:12px;color:var(--text-muted)">Solat seterusnya</div>
+        </div>
+      </div>
+      <div class="solat-time" id="solat-time">--:--</div>
+    </div>
+    <div class="countdown-text" id="countdown-text" aria-live="polite">⏳ —</div>
+    <div class="waktu-grid" id="waktu-grid" aria-label="Waktu solat hari ini"></div>
+    <div class="zone-picker" id="zone-picker" style="display:none">
+      <div class="zone-picker-row">
+        <select id="zone-negeri" class="zone-select"></select>
+        <select id="zone-kod" class="zone-select"></select>
+        <button class="zone-btn" id="zone-apply">Guna</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">
+      📖 Ayat Hari Ini
+      <button class="refresh-btn" id="refresh-ayat">↻ lain</button>
+    </div>
+    <div id="ayat-container" aria-live="polite" aria-atomic="true">
+      <div class="ayat-content show" id="ayat-content">
+        <div class="ayat-arabic" id="ayat-arabic">—</div>
+        <div class="ayat-translation" id="ayat-translation">—</div>
+        <div class="ayat-ref" id="ayat-ref">—</div>
+      </div>
+      <div class="loading-data" id="ayat-loading" style="display:none">﷽ Memuatkan ayat...</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">🤲 Doa Hari Ini</div>
+      <div class="doa-card" aria-live="polite" aria-atomic="true">
+      <div class="doa-arabic" id="doa-arabic">—</div>
+      <div class="doa-text" id="doa-text">—</div>
+      <div class="doa-ref" id="doa-ref">—</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">⏰ Cadangan Rutin Harian</div>
+    <div class="rutin-list">
+      <div class="rutin-item"><div class="rutin-dot"></div><div class="rutin-waktu">Subuh</div><div class="rutin-detail">Qiyamullail, zikir pagi, tilawah sekurang-kurangnya 1 muka surat</div></div>
+      <div class="rutin-item"><div class="rutin-dot"></div><div class="rutin-waktu">Pagi</div><div class="rutin-detail">Kerja dengan niat ibadat, jaga adab, elak ghibah dan sia-sia</div></div>
+      <div class="rutin-item"><div class="rutin-dot"></div><div class="rutin-waktu">Petang</div><div class="rutin-detail">Asar tepat waktu, zikir petang, masa bersama keluarga</div></div>
+      <div class="rutin-item"><div class="rutin-dot"></div><div class="rutin-waktu">Malam</div><div class="rutin-detail">Isyak berjemaah jika mampu, tadabbur al-Quran, tidur awal</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">⚠️ Peringatan Hari Ini</div>
+    <div class="reminder-card" id="reminder-text">—</div>
+  </div>
+
+  <div class="offline-banner" id="offline-banner">✈️ Anda dalam mod luar talian</div>
+
+  <div class="error-toast" id="error-toast" role="alert" aria-live="assertive"></div>
+
+  <nav class="nav-bar">
+    <a class="nav-item active" href="index.html"><span class="nav-icon">🏠</span><span>Dashboard</span></a>
+    <a class="nav-item" href="quran.html"><span class="nav-icon">📖</span><span>Quran</span></a>
+    <a class="nav-item" href="sistem-vault/index.html"><span class="nav-icon">🔐</span><span>Vault</span></a>
+    <a class="nav-item" href="sistem-doa/index.html"><span class="nav-icon">🤲</span><span>Doa</span></a>
+    <a class="nav-item" href="sistem-kewangan/index.html"><span class="nav-icon">💰</span><span>Kewangan</span></a>
+    <a class="nav-item" href="sistem-menu/index.html"><span class="nav-icon">⚙️</span><span>Menu</span></a>
+  </nav>
+</div>
+
+<script defer src="shared-responsive.js"></script>
+<script defer src="data.js"></script>
+<script defer>
+/* ===== DASHBOARD ===== */
+(function() {
+  var $ = function(id) { return document.getElementById(id); };
+
+  /* ---------- PRAYER TIMES ---------- */
+  var PRAYER_NAMES = ['Subuh', 'Zohor', 'Asar', 'Maghrib', 'Isyak'];
+  var DEFAULT_TIMES = ['05:54', '13:13', '16:29', '19:28', '20:10'];
+  var LOCATION_KEY = 'dashboard_solat_loc';
+
+  var AVAILABLE_ZONES = {
+    "Selangor": { repo: "https://raw.githubusercontent.com/pengurusanemediamasjidkampungs-dotcom/API-TAKWIM-SOLAT-SELANGOR-2026/main/", zones: [
+      { code: "SGR01", name: "Gombak, Petaling, Sepang, Hulu Langat, Hulu Selangor, S.Alam" },
+      { code: "SGR02", name: "Kuala Selangor, Sabak Bernam" },
+      { code: "SGR03", name: "Klang, Kuala Langat" },
+    ]},
+    "Johor": { repo: "https://raw.githubusercontent.com/pengurusanemediamasjidkampungs-dotcom/API-TAKWIM-SOLAT-JOHOR-2026/main/", zones: [
+      { code: "JHR01", name: "Pulau Aur dan Pulau Pemanggil" },
+      { code: "JHR02", name: "Johor Bahru, Kota Tinggi, Mersing, Kulai" },
+      { code: "JHR03", name: "Kluang, Pontian" },
+      { code: "JHR04", name: "Batu Pahat, Muar, Segamat, Gemas Johor, Tangkak" },
+    ]},
+    "Kuala Lumpur": { repo: "https://raw.githubusercontent.com/pengurusanemediamasjidkampungs-dotcom/API-TAKWIM-SOLAT-WP-2026/main/", zones: [
+      { code: "WLY01", name: "Kuala Lumpur" },
+    ]},
+    "Putrajaya": { repo: "https://raw.githubusercontent.com/pengurusanemediamasjidkampungs-dotcom/API-TAKWIM-SOLAT-WP-2026/main/", zones: [
+      { code: "WLY02", name: "Putrajaya" },
+    ]},
+  };
+
+  function getZoneKey() {
+    return localStorage.getItem(LOCATION_KEY + '_zone') || 'SGR01';
+  }
+
+  function saveZoneKey(code) {
+    localStorage.setItem(LOCATION_KEY + '_zone', code);
+  }
+
+  function findZone(code) {
+    for (var negeri in AVAILABLE_ZONES) {
+      var z = AVAILABLE_ZONES[negeri].zones.find(function(z) { return z.code === code; });
+      if (z) return { negeri: negeri, zone: z };
+    }
+    return { negeri: 'Selangor', zone: { code: 'SGR01', name: 'Gombak, Petaling, Sepang' } };
+  }
+
+  function getZoneUrl(code) {
+    for (var negeri in AVAILABLE_ZONES) {
+      var z = AVAILABLE_ZONES[negeri].zones.find(function(z) { return z.code === code; });
+      if (z) return AVAILABLE_ZONES[negeri].repo + code + '.json';
+    }
+    return '';
+  }
+
+  function getTimes() {
+    var raw = localStorage.getItem(LOCATION_KEY);
+    if (raw) { try { return JSON.parse(raw); } catch(e) {} }
+    return { times: DEFAULT_TIMES, loc: 'Shah Alam' };
+  }
+
+  function saveTimes(times, loc) {
+    localStorage.setItem(LOCATION_KEY, JSON.stringify({ times: times, loc: loc }));
+  }
+
+  function to12h(str) {
+    if (!str || str === '--:--') return str;
+    var p = str.split(':');
+    var h = parseInt(p[0], 10);
+    var m = p[1];
+    var ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    return h + ':' + m + ' ' + ampm;
+  }
+
+  function parseTime(str) {
+    var p = str.split(':');
+    var d = new Date();
+    d.setHours(parseInt(p[0], 10), parseInt(p[1], 10), 0, 0);
+    return d;
+  }
+
+  function prayerIndex(now, times) {
+    var ms = now.getHours() * 60 + now.getMinutes();
+    for (var i = 0; i < times.length; i++) {
+      var t = times[i];
+      var tm = parseInt(t.split(':')[0], 10) * 60 + parseInt(t.split(':')[1], 10);
+      if (ms < tm) return i;
+    }
+    return -1;
+  }
+
+  var countdownInterval = null;
+
+  function renderSolat() {
+    var data = getTimes();
+    var times = data.times;
+    var now = new Date();
+    var idx = prayerIndex(now, times);
+
+    var titleEl = $('solat-title');
+    var timeEl = $('solat-time');
+    var countdownEl = $('countdown-text');
+    var gridEl = $('waktu-grid');
+
+    if (countdownInterval) clearInterval(countdownInterval);
+
+    if (idx === -1) {
+      titleEl.textContent = 'Isyak';
+      timeEl.textContent = '--:--';
+      renderGrid(gridEl, times, -1);
+      // Countdown ke Subuh esok
+      var subuhToday = parseTime(times[0]);
+      var targetSubuh = new Date(subuhToday.getTime() + 24 * 60 * 60 * 1000);
+      startCountdown(targetSubuh, countdownEl);
+      return;
+    }
+
+    titleEl.textContent = PRAYER_NAMES[idx];
+    timeEl.textContent = to12h(times[idx]);
+
+    var target = parseTime(times[idx]);
+    if (target <= now) target.setDate(target.getDate() + 1);
+
+    startCountdown(target, countdownEl);
+    renderGrid(gridEl, times, idx);
+  }
+
+  function startCountdown(target, countdownEl) {
+    if (!countdownEl) return;
+    function tick() {
+      var diff = Math.floor((target - new Date()) / 1000);
+      if (diff <= 0) { renderSolat(); return; }
+      var h = Math.floor(diff / 3600);
+      var m = Math.floor((diff % 3600) / 60);
+      var s = diff % 60;
+      countdownEl.textContent = '⏳ ' + String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+    }
+    tick();
+    countdownInterval = setInterval(tick, 1000);
+  }
+
+  function renderGrid(gridEl, times, activeIdx) {
+    gridEl.textContent = '';
+    for (var j = 0; j < PRAYER_NAMES.length; j++) {
+      var item = document.createElement('div');
+      item.className = 'waktu-item' + (j === activeIdx ? ' active' : '');
+      var label = document.createElement('div');
+      label.className = 'waktu-label';
+      label.textContent = PRAYER_NAMES[j];
+      var val = document.createElement('div');
+      val.className = 'waktu-val';
+      val.textContent = to12h(times[j]);
+      item.appendChild(label);
+      item.appendChild(val);
+      gridEl.appendChild(item);
+    }
+  }
+
+  /* ---------- DATE ---------- */
+  var hijriCache = null;
+
+  function toDateKey(d) {
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  }
+
+  function renderDate() {
+    var now = new Date();
+    var opts = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+    $('date-main').textContent = now.toLocaleDateString('ms-MY', opts);
+
+    var key = toDateKey(now);
+
+    if (hijriCache && hijriCache[key]) {
+      var h = hijriCache[key];
+      $('date-hijri').textContent = h.hDay + ' ' + h.hMonthName + ' ' + h.hYear + 'H';
+      return;
+    }
+
+    fetch('data/tarikh-hijri-2026.json').then(function(r) { return r.json(); }).then(function(data) {
+      hijriCache = data;
+      var h = data[key];
+      if (h) {
+        $('date-hijri').textContent = h.hDay + ' ' + h.hMonthName + ' ' + h.hYear + 'H';
+      } else {
+        $('date-hijri').textContent = '';
+      }
+    }).catch(function() {
+      try {
+        var hijri = new Intl.DateTimeFormat('en-US-u-ca-islamic', { day: 'numeric', month: 'long', year: 'numeric' }).format(now);
+        var parts = hijri.split(' ');
+        var bulanH = ['Muharram','Safar','Rabiulawal','Rabiulakhir','Jamadilawal','Jamadilakhir','Rejab','Syaaban','Ramadan','Syawal','Zulkaedah','Zulhijjah'];
+        var d = parseInt(parts[0], 10);
+        var mName = parts[1].replace(',','');
+        var bulanIdx = bulanH.indexOf(mName);
+        var y = parts[2];
+        $('date-hijri').textContent = d + ' ' + mName + ' ' + y + 'H';
+      } catch(e) {
+        $('date-hijri').textContent = '';
+      }
+    });
+  }
+
+  /* ---------- AYAT ---------- */
+  var surahListCache = null;
+
+  function padId(id) { return String(id).padStart(3, '0'); }
+
+  async function loadSurahList() {
+    if (surahListCache) return surahListCache;
+    try {
+      var r = await fetch('data/surah_list.json');
+      surahListCache = await r.json();
+      return surahListCache;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function showAyatLoading(show) {
+    var load = $('ayat-loading');
+    if (load) load.style.display = show ? 'block' : 'none';
+    var content = $('ayat-content');
+    if (content) content.classList.toggle('show', !show);
+  }
+
+  function showAyatContent(show) {
+    var content = $('ayat-content');
+    if (content) content.classList.toggle('show', !!show);
+    var load = $('ayat-loading');
+    if (load) load.style.display = show ? 'none' : 'block';
+  }
+
+  var AYAT_START = 87, AYAT_END = 114;
+
+  function getAyatLog() {
+    try {
+      var d = getDailySeed();
+      var raw = localStorage.getItem('ayat_log');
+      var log = raw ? JSON.parse(raw) : {};
+      if (log.d !== d) log = { d: d, seen: [] };
+      return log;
+    } catch(e) {
+      return { d: getDailySeed(), seen: [] };
+    }
+  }
+
+  function saveAyatLog(log) {
+    localStorage.setItem('ayat_log', JSON.stringify(log));
+  }
+
+  async function fetchRandomAyat() {
+    showAyatContent(false);
+    showAyatLoading(true);
+
+    var list = await loadSurahList();
+    if (!list) {
+      showAyatLoading(false);
+      $('ayat-arabic').textContent = '—';
+      $('ayat-translation').textContent = '"Gagal memuat data"';
+      $('ayat-ref').textContent = '';
+      showAyatContent(true);
+      return;
+    }
+
+    var log = getAyatLog();
+    var pick = null, surah = null, surahId = 0;
+
+    for (var attempt = 0; attempt < 30; attempt++) {
+      surahId = Math.floor(Math.random() * (AYAT_END - AYAT_START + 1)) + AYAT_START;
+      surah = list.find(function(s) { return s.id === surahId; });
+      if (!surah) continue;
+
+      try {
+        var r = await fetch('data/' + padId(surahId) + '.json');
+        var verses = await r.json();
+        var idx = Math.floor(Math.random() * verses.length);
+        var c = verses[idx];
+        if (!c) continue;
+
+        var key = surahId + ':' + c.ayah;
+        if (log.seen.indexOf(key) === -1) {
+          pick = c;
+          log.seen.push(key);
+          saveAyatLog(log);
+          break;
+        }
+      } catch(e) {
+        continue;
+      }
+    }
+
+    if (!pick) {
+      log.seen = [];
+      saveAyatLog(log);
+      surahId = Math.floor(Math.random() * (AYAT_END - AYAT_START + 1)) + AYAT_START;
+      surah = list.find(function(s) { return s.id === surahId; }) || list[0];
+      try {
+        var r = await fetch('data/' + padId(surahId) + '.json');
+        var verses = await r.json();
+        pick = verses[Math.floor(Math.random() * verses.length)];
+      } catch(e) {}
+    }
+
+    if (pick && surah) {
+      $('ayat-arabic').textContent = pick.arabic;
+      $('ayat-translation').textContent = '"' + (pick.translationMs || pick.translationEn || '') + '"';
+      $('ayat-ref').textContent = surah.nameAr + ' — ' + surah.name + ' ' + surahId + ':' + pick.ayah;
+    } else {
+      $('ayat-arabic').textContent = '—';
+      $('ayat-translation').textContent = '"Sila semak sambungan internet dan cuba lagi."';
+      $('ayat-ref').textContent = '';
+    }
+
+    showAyatLoading(false);
+    showAyatContent(true);
+  }
+
+  /* ---------- DOA ---------- */
+  function getDailySeed() {
+    var d = new Date();
+    return d.getFullYear() * 10000 + (d.getMonth()+1) * 100 + d.getDate();
+  }
+
+  var DOA_LIST = [
+    {arabic: 'رَبِّ زِدْنِي عِلْمًا', text: '"Ya Tuhanku, tambahkanlah ilmu pengetahuan kepadaku."', ref: 'Ta-Ha 20:114'},
+    {arabic: 'رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ', text: '"Wahai Tuhan kami, berilah kami kebaikan di dunia dan kebaikan di akhirat, dan peliharalah kami dari azab neraka."', ref: 'Al-Baqarah 2:201'},
+    {arabic: 'رَبَّنَا لَا تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا وَهَبْ لَنَا مِن لَّدُنكَ رَحْمَةً', text: '"Wahai Tuhan kami, janganlah Engkau sesatkan hati kami sesudah Engkau beri petunjuk, dan kurniakanlah kepada kami rahmat dari sisi-Mu."', ref: 'Ali Imran 3:8'},
+    {arabic: 'اللَّهُمَّ إِنِّي أَسْأَلُكَ الْهُدَىٰ وَالتُّقَىٰ وَالْعَفَافَ وَالْغِنَىٰ', text: '"Ya Allah, aku memohon kepada-Mu petunjuk, ketakwaan, kesucian diri, dan kekayaan (hati)."', ref: 'Riwayat Muslim'},
+    {arabic: 'رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ وَاجْعَلْنَا لِلْمُتَّقِينَ إِمَامًا', text: '"Wahai Tuhan kami, kurniakanlah kepada kami pasangan dan keturunan yang menyejukkan hati, dan jadikanlah kami pemimpin bagi orang-orang bertakwa."', ref: 'Al-Furqan 25:74'},
+    {arabic: 'اللَّهُمَّ إِنَّكَ عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي', text: '"Ya Allah, sesungguhnya Engkau Maha Pemaaf, suka memaafkan, maka maafkanlah aku."', ref: 'Riwayat al-Tirmizi'},
+    {arabic: 'حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ', text: '"Cukuplah Allah menjadi penolong kami, dan Dia sebaik-baik pengurus."', ref: 'Ali Imran 3:173'},
+  ];
+
+  function renderDoa() {
+    var seed = getDailySeed();
+    var idx = seed % DOA_LIST.length;
+    var d = DOA_LIST[idx];
+    $('doa-arabic').textContent = d.arabic;
+    $('doa-text').textContent = d.text;
+    $('doa-ref').textContent = d.ref;
+  }
+
+  /* ---------- PERINGATAN ---------- */
+  var REMINDERS = [
+    '"Jaga lisanmu — setiap perkataan dicatat. Lebih baik diam daripada bercakap perkara yang tidak memberi manfaat."',
+    '"Jangan marah — syurga untuk orang yang menahan amarah."',
+    '"Senyum itu sedekah. Jangan remehkan kebaikan sekecil apa pun."',
+    '"Perbanyak istighfar — siapa yang membiasakannya, Allah akan beri jalan keluar dari setiap kesempitan."',
+    '"Jaga solat tepat waktu — ia adalah tiang agama dan pembeda antara iman dan kufur."',
+    '"Bersyukur atas yang sedikit, nescaya Allah tambah yang banyak."',
+    '"Maafkan orang lain — Allah lebih suka hamba yang pemaaf."',
+    '"Sedekah tidak mengurangi harta, malah melipatgandakan keberkatan."',
+  ];
+
+  function renderReminder() {
+    var seed = getDailySeed();
+    var idx = seed % REMINDERS.length;
+    $('reminder-text').textContent = REMINDERS[idx];
+  }
+
+  function updateLocBadge() {
+    var code = getZoneKey();
+    var info = findZone(code);
+    var el = $('loc-name');
+    if (el) el.textContent = info.negeri + ' · ' + code;
+  }
+
+  /* ---------- SOLAT DATA FETCH ---------- */
+  function fetchPrayerTimes(zoneCode) {
+    var code = zoneCode || getZoneKey();
+    var url = getZoneUrl(code);
+    if (!url) { showToast('Zon tidak dikenal pasti'); return; }
+
+    var el = document.querySelector('.solat-icon');
+    el.textContent = '⟳';
+    el.style.opacity = '0.5';
+
+    fetch(url).then(function(r) { return r.json(); }).then(function(json) {
+      if (!json || !json.jadual) throw new Error('Data tidak sah');
+      var today = new Date().toISOString().split('T')[0];
+      var entry = json.jadual.find(function(item) { return item.tarikh === today; });
+      if (!entry || !entry.waktu) throw new Error('Tiada jadual hari ini');
+      var w = entry.waktu;
+      var times = [
+        w.subuh && w.subuh['24h'] ? w.subuh['24h'] : '--:--',
+        w.zohor && w.zohor['24h'] ? w.zohor['24h'] : '--:--',
+        w.asar && w.asar['24h'] ? w.asar['24h'] : '--:--',
+        w.maghrib && w.maghrib['24h'] ? w.maghrib['24h'] : '--:--',
+        (w.isyak && w.isyak['24h']) || (w.isya && w.isya['24h']) || '--:--',
+      ];
+      var info = findZone(code);
+      saveTimes(times, info.negeri + ' · ' + code);
+      updateLocBadge();
+      renderSolat();
+    }).catch(function(err) {
+      showToast('Gagal muat waktu solat: ' + err.message);
+    }).finally(function() {
+      el.textContent = '🕌';
+      el.style.opacity = '1';
+    });
+  }
+
+  /* ---------- ZONE PICKER ---------- */
+  function populateZonePicker() {
+    var negeriSel = $('zone-negeri');
+    var kodSel = $('zone-kod');
+    if (!negeriSel || !kodSel) return;
+
+    negeriSel.innerHTML = '';
+    var negeriList = Object.keys(AVAILABLE_ZONES);
+    negeriList.forEach(function(n) {
+      var opt = document.createElement('option');
+      opt.value = n;
+      opt.textContent = n;
+      negeriSel.appendChild(opt);
+    });
+
+    function updateKodList() {
+      var n = negeriSel.value;
+      var zones = AVAILABLE_ZONES[n].zones;
+      kodSel.innerHTML = '';
+      zones.forEach(function(z) {
+        var opt = document.createElement('option');
+        opt.value = z.code;
+        opt.textContent = z.code + ' — ' + z.name;
+        kodSel.appendChild(opt);
+      });
+    }
+    negeriSel.addEventListener('change', updateKodList);
+    updateKodList();
+  }
+
+  function toggleZonePicker() {
+    var picker = $('zone-picker');
+    if (!picker) return;
+    var show = picker.style.display !== 'block';
+    picker.style.display = show ? 'block' : 'none';
+    if (show) {
+      var cur = getZoneKey();
+      var info = findZone(cur);
+      var negeriSel = $('zone-negeri');
+      if (negeriSel) negeriSel.value = info.negeri;
+      negeriSel.dispatchEvent(new Event('change'));
+      var kodSel = $('zone-kod');
+      if (kodSel) kodSel.value = cur;
+    }
+  }
+
+  /* ---------- INIT ---------- */
+  function init() {
+    renderDate();
+    renderSolat();
+    renderDoa();
+    renderReminder();
+    updateLocBadge();
+    populateZonePicker();
+    fetchRandomAyat();
+    $('refresh-ayat').addEventListener('click', fetchRandomAyat);
+
+    // Zone picker toggle
+    $('loc-badge')?.addEventListener('click', toggleZonePicker);
+    $('zone-apply')?.addEventListener('click', function() {
+      var kod = $('zone-kod')?.value;
+      if (kod) {
+        saveZoneKey(kod);
+        $('zone-picker').style.display = 'none';
+        fetchPrayerTimes(kod);
+      }
+    });
+
+    // Try to fetch updated prayer times in background (only if online)
+    if (navigator.onLine) {
+      fetchPrayerTimes();
+    }
+
+    // Offline banner
+    function updateOffline() {
+      var banner = $('offline-banner');
+      if (banner) banner.classList.toggle('show', !navigator.onLine);
+    }
+    updateOffline();
+    window.addEventListener('online', updateOffline);
+    window.addEventListener('offline', updateOffline);
+
+    function showToast(msg) {
+      var el = $('error-toast');
+      if (!el) return;
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(el._t);
+      el._t = setTimeout(function() { el.classList.remove('show'); }, 4000);
+    }
+
+    // API health check — if backend available, use it for live data
+    fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }).then(function(r) {
+      if (r.status === 401) document.documentElement.setAttribute('data-api', 'online');
+    }).catch(function() {});
+
+    // SW registration
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('sw.js').catch(function(err) {
+          console.warn('[Hub] SW registration failed:', err.message);
+        });
+      });
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body>
+</html>

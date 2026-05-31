@@ -1,0 +1,413 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);font-size:14px;color:var(--color-text-primary)}
+
+.tabs{display:flex;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:1.5rem;gap:2px}
+.tab-btn{padding:8px 14px;font-size:13px;font-weight:500;background:none;border:none;border-bottom:2px solid transparent;color:var(--color-text-secondary);cursor:pointer;margin-bottom:-1px;transition:color .15s,border-color .15s}
+.tab-btn.active{color:var(--color-text-primary);border-bottom-color:var(--color-text-primary)}
+.tab-btn:hover:not(.active){color:var(--color-text-primary)}
+
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+.month-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+.month-row select{font-size:13px;padding:6px 10px}
+.badge{font-size:11px;font-weight:500;padding:3px 10px;border-radius:var(--border-radius-md)}
+.badge-green{background:var(--color-background-success);color:var(--color-text-success)}
+.badge-red{background:var(--color-background-danger);color:var(--color-text-danger)}
+
+.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem}
+.metric-card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px 14px}
+.metric-label{font-size:11px;color:var(--color-text-tertiary);margin-bottom:4px}
+.metric-val{font-size:20px;font-weight:500}
+.metric-val.green{color:var(--color-text-success)}
+.metric-val.red{color:var(--color-text-danger)}
+.metric-val.blue{color:var(--color-text-info)}
+
+.section-title{font-size:12px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.6px;margin:1.25rem 0 .6rem}
+
+.entry-table{width:100%;border-collapse:collapse;font-size:13px}
+.entry-table th{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-align:left;padding:6px 10px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.entry-table td{padding:8px 10px;border-bottom:0.5px solid var(--color-border-tertiary);vertical-align:middle}
+.entry-table tr:last-child td{border-bottom:none}
+.entry-table tr:hover td{background:var(--color-background-secondary)}
+.cat-pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:2px 8px;border-radius:12px;font-weight:500}
+.pill-income{background:#E1F5EE;color:#085041}
+.pill-invest{background:#E6F1FB;color:#0C447C}
+.pill-bill{background:#FAECE7;color:#712B13}
+.pill-zakat{background:#FAEEDA;color:#633806}
+.amount-pos{color:var(--color-text-success);font-weight:500}
+.amount-neg{color:var(--color-text-danger);font-weight:500}
+.amount-blue{color:var(--color-text-info);font-weight:500}
+
+.add-row{display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap}
+.add-row input,.add-row select{font-size:13px;padding:6px 10px;flex:1;min-width:100px}
+.add-row input[type=number]{max-width:130px;flex:none}
+.btn-add{font-size:13px;padding:6px 14px;white-space:nowrap;cursor:pointer}
+
+.bs-row{display:flex;gap:16px;margin-top:0}
+.bs-col{flex:1;min-width:0}
+.bs-col-title{font-size:12px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.6px;padding:8px 12px;background:var(--color-background-secondary);border-radius:var(--border-radius-md) var(--border-radius-md) 0 0;border:0.5px solid var(--color-border-tertiary);border-bottom:none}
+.bs-table{width:100%;border-collapse:collapse;font-size:13px;border:0.5px solid var(--color-border-tertiary);border-radius:0 0 var(--border-radius-md) var(--border-radius-md);overflow:hidden}
+.bs-table td{padding:7px 12px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.bs-table tr:last-child td{border-bottom:none}
+.bs-table .total-row td{font-weight:500;background:var(--color-background-secondary)}
+.bs-cat{color:var(--color-text-tertiary);font-size:11px}
+
+.pelaburan-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:4px}
+.invest-card{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:12px}
+.invest-card-title{font-size:12px;font-weight:500;color:var(--color-text-secondary);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.invest-val{font-size:16px;font-weight:500;margin-bottom:4px}
+.invest-sub{font-size:11px;color:var(--color-text-tertiary)}
+.gain-pos{color:var(--color-text-success);font-size:11px;font-weight:500}
+.gain-neg{color:var(--color-text-danger);font-size:11px;font-weight:500}
+
+.progress-bar{height:4px;background:var(--color-border-tertiary);border-radius:2px;margin:6px 0 2px}
+.progress-fill{height:100%;border-radius:2px}
+.fill-green{background:#1D9E75}
+.fill-blue{background:#378ADD}
+.fill-amber{background:#BA7517}
+.fill-red{background:#E24B4A}
+
+.zakat-box{background:var(--color-background-warning);border:0.5px solid var(--color-border-warning);border-radius:var(--border-radius-md);padding:12px 14px;margin-top:.75rem;display:flex;align-items:center;justify-content:space-between}
+.zakat-text{font-size:13px;color:var(--color-text-warning)}
+.zakat-amt{font-size:16px;font-weight:500;color:var(--color-text-warning)}
+</style>
+
+<h2 class="sr-only">Modul pengurusan kewangan — pendapatan, pelaburan, bil, dan balance sheet bulanan</h2>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('bs')"><i class="ti ti-layout-dashboard" aria-hidden="true" style="font-size:14px;margin-right:4px"></i>Balance Sheet</button>
+  <button class="tab-btn" onclick="switchTab('income')"><i class="ti ti-wallet" aria-hidden="true" style="font-size:14px;margin-right:4px"></i>Pendapatan</button>
+  <button class="tab-btn" onclick="switchTab('invest')"><i class="ti ti-trending-up" aria-hidden="true" style="font-size:14px;margin-right:4px"></i>Pelaburan</button>
+  <button class="tab-btn" onclick="switchTab('bills')"><i class="ti ti-receipt" aria-hidden="true" style="font-size:14px;margin-right:4px"></i>Bil & Hangus</button>
+</div>
+
+<div class="month-row">
+  <select id="month-select" onchange="render()">
+    <option value="2025-05" selected>Mei 2025</option>
+    <option value="2025-04">April 2025</option>
+    <option value="2025-03">Mac 2025</option>
+    <option value="2025-06">Jun 2025</option>
+  </select>
+  <span id="net-badge" class="badge badge-green">+ RM 0</span>
+</div>
+
+<div class="summary-grid">
+  <div class="metric-card">
+    <div class="metric-label">Jumlah Masuk</div>
+    <div class="metric-val green" id="total-in">RM 0</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-label">Jumlah Keluar</div>
+    <div class="metric-val red" id="total-out">RM 0</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-label">Baki Bersih</div>
+    <div class="metric-val blue" id="net-val">RM 0</div>
+  </div>
+</div>
+
+<div id="tab-bs" class="tab-panel active">
+  <div class="bs-row">
+    <div class="bs-col">
+      <div class="bs-col-title"><i class="ti ti-building-bank" aria-hidden="true" style="font-size:13px;margin-right:4px"></i>Aset</div>
+      <table class="bs-table">
+        <tbody id="bs-asset-body"></tbody>
+      </table>
+    </div>
+    <div class="bs-col">
+      <div class="bs-col-title" style="background:var(--color-background-danger);color:var(--color-text-danger)"><i class="ti ti-credit-card" aria-hidden="true" style="font-size:13px;margin-right:4px"></i>Liabiliti</div>
+      <table class="bs-table">
+        <tbody id="bs-liab-body"></tbody>
+      </table>
+    </div>
+  </div>
+  <div style="margin-top:1rem;padding:12px 14px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);display:flex;justify-content:space-between;align-items:center">
+    <span style="font-size:13px;font-weight:500">Ekuiti Bersih (Aset - Liabiliti)</span>
+    <span id="equity-val" style="font-size:18px;font-weight:500;color:var(--color-text-success)">RM 0</span>
+  </div>
+</div>
+
+<div id="tab-income" class="tab-panel">
+  <div class="section-title">Pengagihan Pendapatan</div>
+  <table class="entry-table">
+    <thead><tr><th>Kategori</th><th>Perihal</th><th style="text-align:right">Jumlah (RM)</th><th>%</th><th></th></tr></thead>
+    <tbody id="income-body"></tbody>
+  </table>
+  <div class="add-row">
+    <select id="inc-cat">
+      <option value="Simpanan">Simpanan</option>
+      <option value="Kesihatan">Kesihatan</option>
+      <option value="Keperluan Asas">Keperluan Asas</option>
+      <option value="Keluarga">Keluarga</option>
+      <option value="Pendidikan">Pendidikan</option>
+      <option value="Zakat/Infaq">Zakat/Infaq</option>
+      <option value="Gaji">Gaji</option>
+      <option value="Pendapatan Lain">Pendapatan Lain</option>
+    </select>
+    <input type="text" id="inc-desc" placeholder="Perihal..." style="min-width:120px">
+    <input type="number" id="inc-amt" placeholder="RM" min="0" step="1">
+    <button class="btn-add" onclick="addIncome()"><i class="ti ti-plus" aria-hidden="true"></i> Tambah</button>
+  </div>
+  <div id="zakat-notice" class="zakat-box" style="display:none">
+    <div>
+      <div style="font-size:11px;font-weight:500;margin-bottom:2px">Anggaran Zakat Pendapatan (2.5%)</div>
+      <div class="zakat-text" id="zakat-text">Gaji melebihi nisab — wajib kira zakat</div>
+    </div>
+    <div class="zakat-amt" id="zakat-amt">RM 0</div>
+  </div>
+</div>
+
+<div id="tab-invest" class="tab-panel">
+  <div class="section-title">Portfolio Pelaburan</div>
+  <div class="pelaburan-grid" id="invest-grid"></div>
+  <div style="margin-top:1rem">
+    <div class="section-title">Tambah / Kemaskini Unit</div>
+    <div class="add-row">
+      <select id="inv-type">
+        <option>Emas</option>
+        <option>ASB</option>
+        <option>Saham</option>
+        <option>IPO</option>
+        <option>Kripto/Digital</option>
+      </select>
+      <input type="text" id="inv-name" placeholder="Nama / Kod (cth: MAYBANK)" style="min-width:130px">
+      <input type="number" id="inv-unit" placeholder="Unit / gram" min="0" step="0.01">
+      <input type="number" id="inv-buy" placeholder="Harga beli (RM)" min="0" step="0.01">
+      <input type="number" id="inv-cur" placeholder="Harga semasa (RM)" min="0" step="0.01">
+      <button class="btn-add" onclick="addInvest()"><i class="ti ti-plus" aria-hidden="true"></i> Tambah</button>
+    </div>
+  </div>
+</div>
+
+<div id="tab-bills" class="tab-panel">
+  <div class="section-title">Bil Tetap & Perbelanjaan Hangus</div>
+  <table class="entry-table">
+    <thead><tr><th>Kategori</th><th>Perihal</th><th style="text-align:right">Jumlah (RM)</th><th>Status</th><th></th></tr></thead>
+    <tbody id="bills-body"></tbody>
+  </table>
+  <div class="add-row">
+    <select id="bill-cat">
+      <option value="Kehendak">Kehendak</option>
+      <option value="Kenderaan">Kenderaan</option>
+      <option value="Internet">Internet</option>
+      <option value="Air">Air</option>
+      <option value="Elektrik">Elektrik</option>
+      <option value="Cukai">Cukai</option>
+      <option value="Lain-lain">Lain-lain</option>
+    </select>
+    <input type="text" id="bill-desc" placeholder="Perihal (cth: Unifi, TNB...)" style="min-width:130px">
+    <input type="number" id="bill-amt" placeholder="RM" min="0" step="1">
+    <select id="bill-status">
+      <option value="Belum Bayar">Belum Bayar</option>
+      <option value="Sudah Bayar">Sudah Bayar</option>
+    </select>
+    <button class="btn-add" onclick="addBill()"><i class="ti ti-plus" aria-hidden="true"></i> Tambah</button>
+  </div>
+</div>
+
+<script>
+const fmt = n => 'RM ' + Math.round(n).toLocaleString('ms-MY');
+
+let data = {
+  income: [
+    {cat:'Gaji', desc:'Gaji pokok', amt:5000},
+    {cat:'Simpanan', desc:'KWSP / Tabung Haji', amt:550},
+    {cat:'Keperluan Asas', desc:'Makan, pasar', amt:800},
+    {cat:'Keluarga', desc:'Ibu bapa, anak', amt:600},
+    {cat:'Pendidikan', desc:'Kursus / buku', amt:200},
+    {cat:'Zakat/Infaq', desc:'Zakat pendapatan', amt:125},
+    {cat:'Kesihatan', desc:'Takaful, ubat', amt:150},
+  ],
+  invest: [
+    {type:'Emas', name:'Public Gold', unit:50, buy:380, cur:395},
+    {type:'ASB', name:'ASB Amanah', unit:10000, buy:1, cur:1.02},
+    {type:'Saham', name:'MAYBANK', unit:1000, buy:9.20, cur:9.85},
+    {type:'Kripto/Digital', name:'Bitcoin (BTC)', unit:0.005, buy:280000, cur:310000},
+  ],
+  bills: [
+    {cat:'Kenderaan', desc:'Ansuran kereta', amt:700, status:'Sudah Bayar'},
+    {cat:'Internet', desc:'Unifi 500Mbps', amt:129, status:'Sudah Bayar'},
+    {cat:'Elektrik', desc:'TNB bulan ini', amt:180, status:'Belum Bayar'},
+    {cat:'Air', desc:'SYABAS', amt:45, status:'Sudah Bayar'},
+    {cat:'Cukai', desc:'Cukai tanah', amt:80, status:'Belum Bayar'},
+    {cat:'Kehendak', desc:'Netflix, Spotify', amt:55, status:'Sudah Bayar'},
+  ]
+};
+
+const incCatColor = {
+  'Gaji':'pill-income','Simpanan':'pill-income','Keperluan Asas':'pill-income',
+  'Keluarga':'pill-income','Pendidikan':'pill-income','Zakat/Infaq':'pill-zakat',
+  'Kesihatan':'pill-income','Pendapatan Lain':'pill-income'
+};
+const billCatIcon = {
+  'Kenderaan':'ti-car','Internet':'ti-wifi','Elektrik':'ti-bolt','Air':'ti-droplet',
+  'Cukai':'ti-building','Kehendak':'ti-heart','Lain-lain':'ti-dots'
+};
+const investIcon = {
+  'Emas':'ti-currency-dollar','ASB':'ti-building-bank','Saham':'ti-trending-up',
+  'IPO':'ti-certificate','Kripto/Digital':'ti-brand-bitcoin'
+};
+
+function switchTab(id){
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>{
+    const ids=['bs','income','invest','bills'];
+    b.classList.toggle('active', ids[i]===id);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+}
+
+function render(){
+  const gaji = data.income.find(i=>i.cat==='Gaji');
+  const totalIn = gaji ? gaji.amt : 0;
+  const totalSpend = data.income.filter(i=>i.cat!=='Gaji'&&i.cat!=='Pendapatan Lain').reduce((s,i)=>s+i.amt,0);
+  const totalBills = data.bills.reduce((s,b)=>s+b.amt,0);
+  const totalOut = totalSpend + totalBills;
+  const net = totalIn - totalOut;
+
+  document.getElementById('total-in').textContent = fmt(totalIn);
+  document.getElementById('total-out').textContent = fmt(totalOut);
+  document.getElementById('net-val').textContent = fmt(net);
+  const nb = document.getElementById('net-badge');
+  nb.textContent = (net>=0?'+ ':' ') + fmt(net);
+  nb.className = 'badge ' + (net>=0?'badge-green':'badge-red');
+
+  renderIncome(totalIn);
+  renderBills();
+  renderInvest();
+  renderBS();
+
+  const zakatBase = totalIn - (gaji?0:0);
+  const nisab = 2000;
+  const zn = document.getElementById('zakat-notice');
+  if(totalIn >= nisab){
+    zn.style.display='flex';
+    document.getElementById('zakat-text').textContent='Gaji melebihi nisab — wajib kira zakat';
+    document.getElementById('zakat-amt').textContent = fmt(totalIn*0.025);
+  } else { zn.style.display='none'; }
+}
+
+function renderIncome(totalIn){
+  const tbody = document.getElementById('income-body');
+  tbody.innerHTML='';
+  data.income.forEach((item,i)=>{
+    const pct = totalIn>0 ? ((item.amt/totalIn)*100).toFixed(1) : '0.0';
+    const isIncome = item.cat==='Gaji'||item.cat==='Pendapatan Lain';
+    const pill = incCatColor[item.cat]||'pill-income';
+    tbody.innerHTML += `<tr>
+      <td><span class="cat-pill ${pill}">${item.cat}</span></td>
+      <td>${item.desc}</td>
+      <td style="text-align:right" class="${isIncome?'amount-pos':'amount-neg'}">${fmt(item.amt)}</td>
+      <td style="font-size:12px;color:var(--color-text-tertiary)">${pct}%</td>
+      <td><button style="background:none;border:none;cursor:pointer;color:var(--color-text-tertiary);font-size:14px" onclick="removeItem('income',${i})"><i class="ti ti-x" aria-label="Buang"></i></button></td>
+    </tr>`;
+  });
+}
+
+function renderBills(){
+  const tbody = document.getElementById('bills-body');
+  tbody.innerHTML='';
+  data.bills.forEach((b,i)=>{
+    const icon = billCatIcon[b.cat]||'ti-dots';
+    const paid = b.status==='Sudah Bayar';
+    tbody.innerHTML += `<tr>
+      <td><span class="cat-pill pill-bill"><i class="ti ${icon}" aria-hidden="true" style="font-size:12px"></i> ${b.cat}</span></td>
+      <td>${b.desc}</td>
+      <td style="text-align:right" class="amount-neg">${fmt(b.amt)}</td>
+      <td><span style="font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500;background:${paid?'var(--color-background-success)':'var(--color-background-warning)'};color:${paid?'var(--color-text-success)':'var(--color-text-warning)'}">${b.status}</span></td>
+      <td><button style="background:none;border:none;cursor:pointer;color:var(--color-text-tertiary);font-size:14px" onclick="removeItem('bills',${i})"><i class="ti ti-x" aria-label="Buang"></i></button></td>
+    </tr>`;
+  });
+}
+
+function renderInvest(){
+  const grid = document.getElementById('invest-grid');
+  grid.innerHTML='';
+  data.invest.forEach((inv,i)=>{
+    const totalBuy = inv.unit * inv.buy;
+    const totalCur = inv.unit * inv.cur;
+    const gain = totalCur - totalBuy;
+    const gainPct = totalBuy>0 ? ((gain/totalBuy)*100).toFixed(1) : '0.0';
+    const icon = investIcon[inv.type]||'ti-trending-up';
+    const fillClass = inv.type==='Emas'?'fill-amber':inv.type==='ASB'?'fill-green':inv.type==='Saham'?'fill-blue':'fill-amber';
+    const progress = Math.min(100, Math.max(0, ((inv.cur-inv.buy)/inv.buy*100+50)));
+    grid.innerHTML += `<div class="invest-card">
+      <div class="invest-card-title"><i class="ti ${icon}" aria-hidden="true" style="font-size:16px"></i>${inv.name}</div>
+      <div class="invest-val">${fmt(totalCur)}</div>
+      <div class="invest-sub">${Number(inv.unit).toLocaleString()} unit × ${Number(inv.cur).toFixed(2)}</div>
+      <div class="progress-bar"><div class="progress-fill ${fillClass}" style="width:${progress.toFixed(0)}%"></div></div>
+      <div class="${gain>=0?'gain-pos':'gain-neg'}">${gain>=0?'▲':'▼'} ${fmt(Math.abs(gain))} (${Math.abs(gainPct)}%)</div>
+      <div style="font-size:10px;color:var(--color-text-tertiary);margin-top:2px">Modal: ${fmt(totalBuy)}</div>
+    </div>`;
+  });
+}
+
+function renderBS(){
+  const totalInvest = data.invest.reduce((s,i)=>s+(i.unit*i.cur),0);
+  const totalSaving = data.income.filter(i=>i.cat==='Simpanan').reduce((s,i)=>s+i.amt,0)*12;
+  const assetBody = document.getElementById('bs-asset-body');
+  assetBody.innerHTML = `
+    <tr><td class="bs-cat">Pelaburan</td><td style="text-align:right;font-weight:500;color:var(--color-text-success)">${fmt(totalInvest)}</td></tr>
+    <tr><td class="bs-cat">Simpanan Terkumpul</td><td style="text-align:right;font-weight:500;color:var(--color-text-success)">${fmt(totalSaving)}</td></tr>
+    <tr><td class="bs-cat">Tunai / Bank</td><td style="text-align:right;font-weight:500;color:var(--color-text-success)">${fmt(3500)}</td></tr>
+    <tr class="total-row"><td>Jumlah Aset</td><td style="text-align:right">${fmt(totalInvest+totalSaving+3500)}</td></tr>`;
+
+  const totalBills = data.bills.reduce((s,b)=>s+b.amt,0);
+  const liabBody = document.getElementById('bs-liab-body');
+  liabBody.innerHTML = `
+    <tr><td class="bs-cat">Bil Tertunggak</td><td style="text-align:right;font-weight:500;color:var(--color-text-danger)">${fmt(data.bills.filter(b=>b.status==='Belum Bayar').reduce((s,b)=>s+b.amt,0))}</td></tr>
+    <tr><td class="bs-cat">Ansuran (bulanan)</td><td style="text-align:right;font-weight:500;color:var(--color-text-danger)">${fmt(data.bills.find(b=>b.cat==='Kenderaan')?.amt||0)}</td></tr>
+    <tr><td class="bs-cat">Hutang Lain</td><td style="text-align:right;font-weight:500;color:var(--color-text-danger)">${fmt(0)}</td></tr>
+    <tr class="total-row"><td>Jumlah Liabiliti</td><td style="text-align:right">${fmt(totalBills)}</td></tr>`;
+
+  const equity = (totalInvest+totalSaving+3500) - totalBills;
+  const ev = document.getElementById('equity-val');
+  ev.textContent = fmt(equity);
+  ev.style.color = equity>=0?'var(--color-text-success)':'var(--color-text-danger)';
+}
+
+function addIncome(){
+  const cat = document.getElementById('inc-cat').value;
+  const desc = document.getElementById('inc-desc').value.trim()||cat;
+  const amt = parseFloat(document.getElementById('inc-amt').value)||0;
+  if(amt<=0) return;
+  data.income.push({cat,desc,amt});
+  document.getElementById('inc-desc').value='';
+  document.getElementById('inc-amt').value='';
+  render();
+}
+
+function addBill(){
+  const cat = document.getElementById('bill-cat').value;
+  const desc = document.getElementById('bill-desc').value.trim()||cat;
+  const amt = parseFloat(document.getElementById('bill-amt').value)||0;
+  const status = document.getElementById('bill-status').value;
+  if(amt<=0) return;
+  data.bills.push({cat,desc,amt,status});
+  document.getElementById('bill-desc').value='';
+  document.getElementById('bill-amt').value='';
+  render();
+}
+
+function addInvest(){
+  const type = document.getElementById('inv-type').value;
+  const name = document.getElementById('inv-name').value.trim()||type;
+  const unit = parseFloat(document.getElementById('inv-unit').value)||0;
+  const buy = parseFloat(document.getElementById('inv-buy').value)||0;
+  const cur = parseFloat(document.getElementById('inv-cur').value)||buy;
+  if(unit<=0||buy<=0) return;
+  data.invest.push({type,name,unit,buy,cur});
+  ['inv-name','inv-unit','inv-buy','inv-cur'].forEach(id=>document.getElementById(id).value='');
+  render();
+}
+
+function removeItem(section,idx){
+  data[section].splice(idx,1);
+  render();
+}
+
+render();
+</script>

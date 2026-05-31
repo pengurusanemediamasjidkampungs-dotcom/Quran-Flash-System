@@ -1,0 +1,286 @@
+/* ==========================================================================
+   SHARED RESPONSIVE SYSTEM — Quran Flash System
+   Satu sumber kebenaran untuk semua adaptasi skrin & orientasi.
+   ========================================================================== */
+
+/* ─── 1. CUSTOM PROPERTIES ─── */
+:root {
+  /* Breakpoint tokens (rujukan sahaja — guna dalam @media) */
+  --bp-xs: 360px;
+  --bp-sm: 480px;
+  --bp-md: 640px;
+  --bp-lg: 768px;
+  --bp-xl: 1024px;
+  --bp-xxl: 1280px;
+
+  /* Safe area insets */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+
+  /* Dynamic viewport (fixed 100vh iOS bug) */
+  --vh: 1vh;
+
+  /* Responsive spacing scale */
+  --space-xs: clamp(4px, 0.6vw, 8px);
+  --space-sm: clamp(8px, 1.2vw, 16px);
+  --space-md: clamp(12px, 2vw, 24px);
+  --space-lg: clamp(16px, 3vw, 32px);
+  --space-xl: clamp(20px, 4vw, 48px);
+
+  /* Responsive type scale */
+  --text-xs: clamp(9px, 1.4vw, 11px);
+  --text-sm: clamp(10px, 1.6vw, 13px);
+  --text-base: clamp(13px, 2vw, 16px);
+  --text-md: clamp(14px, 2.4vw, 18px);
+  --text-lg: clamp(18px, 3vw, 24px);
+  --text-xl: clamp(22px, 4vw, 32px);
+  --text-xxl: clamp(28px, 5vw, 40px);
+
+  /* Arabic responsive size */
+  --arabic-base: clamp(16px, 3.5cqi, 24px);
+  --arabic-lg: clamp(20px, 5cqi, 32px);
+
+  /* Container query support — sub-systems set container-type */
+  --container-gap: clamp(8px, 2vw, 20px);
+
+  /* Navigation bar height (berubah ikut orientasi) */
+  --nav-h: 64px;
+  --nav-h-landscape: 52px;
+
+  /* Bottom nav padding */
+  --bn-h: var(--nav-h);
+
+  /* Header compact mode (landscape on small screens) */
+  --header-compact: 0;
+}
+
+/* ─── 2. VIEWPORT HEIGHT FIX (iOS Safari) ─── */
+@supports (-webkit-touch-callout: none) {
+  :root {
+    --vh: 1px;
+  }
+}
+
+/* ─── 3. BASE RESPONSIVE RESET ─── */
+html {
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+img, video, canvas, svg {
+  max-width: 100%;
+  height: auto;
+}
+
+table {
+  width: 100%;
+}
+
+input, select, textarea, button {
+  font-size: max(16px, 1rem);
+}
+
+/* ─── 4. CONTAINER QUERY SETUP ─── */
+/* Setiap sub-sistem utama jadi containment root */
+.container-query {
+  container-type: inline-size;
+  container-name: layout;
+}
+
+/* ─── 5. FLUID UTILITY ─── */
+.fluid-gap {
+  gap: var(--container-gap);
+}
+
+/* ─── 6. ORIENTATION MEDIA QUERIES ─── */
+
+/* Landscape pada telefon — maksimakan ruang menegak */
+@media (orientation: landscape) and (max-height: 520px) {
+  :root {
+    --header-compact: 1;
+    --nav-h: var(--nav-h-landscape);
+  }
+
+  .hide-landscape {
+    display: none !important;
+  }
+
+  /* Kurangkan padding menegak */
+  header, .header, .topbar {
+    padding-top: clamp(4px, 1vh, 8px) !important;
+    padding-bottom: clamp(4px, 1vh, 8px) !important;
+  }
+
+  /* Kurangkan hero */
+  .hero, .hero-section {
+    padding-top: clamp(8px, 2vh, 16px) !important;
+    padding-bottom: clamp(8px, 2vh, 16px) !important;
+  }
+
+  /* Maksimakan tinggi kandungan */
+  main, .main, #chat, .content {
+    flex: 1 1 auto !important;
+  }
+
+  /* Sembunyi footer info pada skrin kecil landskap */
+  .footer-info, .page-footer {
+    display: none !important;
+  }
+}
+
+/* Portrait pada tablet — layout selesa single-column */
+@media (orientation: portrait) and (min-width: 600px) and (max-width: 1024px) {
+  :root {
+    --text-base: clamp(15px, 2.4vw, 18px);
+  }
+
+  .hide-tablet-portrait {
+    display: none !important;
+  }
+}
+
+/* Landscape pada tablet — ruang lebih luas */
+@media (orientation: landscape) and (min-width: 768px) and (max-width: 1200px) {
+  .hide-tablet-landscape {
+    display: none !important;
+  }
+}
+
+/* ─── 7. WIDTH BREAKPOINTS ─── */
+
+/* Telefon kecil (< 360px) */
+@media (max-width: 360px) {
+  :root {
+    --space-md: 6px;
+  }
+
+  .hide-xs {
+    display: none !important;
+  }
+}
+
+/* Telefon biasa (360px – 480px) */
+@media (min-width: 361px) and (max-width: 480px) {
+  .hide-sm {
+    display: none !important;
+  }
+}
+
+/* Phablet / Telefon besar (480px – 640px) */
+@media (min-width: 481px) and (max-width: 639px) {
+  .hide-md {
+    display: none !important;
+  }
+}
+
+/* Tablet potret (640px – 1024px) */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .hide-lg {
+    display: none !important;
+  }
+}
+
+/* Desktop (≥ 1024px) */
+@media (min-width: 1024px) {
+  .hide-xl {
+    display: none !important;
+  }
+}
+
+/* Desktop besar (≥ 1280px) */
+@media (min-width: 1280px) {
+  .hide-xxl {
+    display: none !important;
+  }
+}
+
+/* ─── 8. HEIGHT BREAKPOINTS ─── */
+
+/* Skrin sangat rendah */
+@media (max-height: 500px) {
+  :root {
+    --space-lg: clamp(8px, 2vh, 16px);
+    --space-xl: clamp(12px, 3vh, 24px);
+  }
+}
+
+/* ─── 9. DYNAMIC MAX-WIDTH CONTAINERS ─── */
+/* Gantikan max-width tetap dengan fluid width */
+
+.container-fluid {
+  width: min(100% - 2rem, var(--container-max, 480px));
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.container-fluid-sm {
+  width: min(100% - 2rem, 480px);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.container-fluid-md {
+  width: min(100% - 2rem, 640px);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.container-fluid-lg {
+  width: min(100% - 2rem, 860px);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ─── 10. SAFE AREA EXTENSIONS ─── */
+.safe-padding {
+  padding-left: var(--safe-left);
+  padding-right: var(--safe-right);
+}
+
+.safe-padding-bottom {
+  padding-bottom: var(--safe-bottom);
+}
+
+.safe-padding-top {
+  padding-top: var(--safe-top);
+}
+
+/* ─── 11. ACCESSIBILITY ─── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --text-primary: #000 !important;
+    --text-secondary: #333 !important;
+    --border-light: #999 !important;
+  }
+}
+
+/* ─── 12. PRINT ─── */
+@media print {
+  .nav-bar,
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}
+
+/* ─── 13. TOUCH TARGETS ─── */
+/* Pastikan button minimum 44px untuk accessibility */
+.touch-gt {
+  min-height: 44px;
+  min-width: 44px;
+}

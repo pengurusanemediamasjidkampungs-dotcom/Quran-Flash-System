@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="theme-color" content="#fbfaf6">
+<title>Vault — Password Manager</title>
+<link rel="stylesheet" href="../shared-responsive.css">
+<script src="../shared-responsive.js" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #B8860B; --gold-light: #DAA520; --gold-bg: rgba(218,165,32,0.08);
+  --gold-border: rgba(184,134,11,0.2); --bg: #fbfaf6; --bg-card: #ffffff;
+  --text: #1a1a1a; --text-muted: #6b7280; --text-light: #9ca3af;
+  --border: #e5e7eb; --radius: 12px; --radius-sm: 8px; --shadow: 0 1px 3px rgba(0,0,0,0.06);
+  --font-sans: 'DM Sans', system-ui, sans-serif;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font-sans); background: var(--bg); color: var(--text);
+  line-height: 1.6; font-size: 14px; min-height: 100vh;
+}
+.container { max-width: 480px; margin: 0 auto; padding: 0 0 calc(64px + var(--safe-bottom) + 16px); }
+
+/* Auth screens */
+.screen { display: none; padding: 40px 20px; }
+.screen.active { display: block; }
+.auth-box {
+  background: var(--bg-card); border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 32px 24px; margin-top: 40px; border: 1px solid var(--border);
+}
+.auth-box h1 { font-size: 20px; font-weight: 600; text-align: center; margin-bottom: 4px; }
+.auth-box p { font-size: 13px; color: var(--text-muted); text-align: center; margin-bottom: 20px; }
+.auth-box label { display: block; font-size: 12px; font-weight: 500; margin-bottom: 4px; color: var(--text-muted); }
+.auth-box input[type="password"], .auth-box input[type="text"] {
+  width: 100%; padding: 10px 12px; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); font-size: 14px; font-family: var(--font-sans);
+  margin-bottom: 14px; outline: none;
+}
+.auth-box input:focus { border-color: var(--gold); }
+.auth-box .btn { width: 100%; }
+.auth-error { color: #dc2626; font-size: 12px; text-align: center; margin-top: 8px; min-height: 18px; }
+
+/* Header */
+.vault-header {
+  background: var(--gold-bg); border-bottom: 1px solid var(--gold-border);
+  padding: 16px 20px; display: flex; align-items: center; gap: 12px;
+}
+.vault-header h2 { font-size: 16px; font-weight: 600; flex: 1; }
+.back-link { font-size: 11px; color: var(--gold); text-decoration: none; display: flex; align-items: center; gap: 4px; }
+.back-link:hover { opacity: 0.8; }
+
+/* Toolbar */
+.toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 20px; border-bottom: 1px solid var(--border);
+}
+.search-box {
+  display: flex; align-items: center; gap: 8px; flex: 1;
+  border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 4px 10px;
+  background: var(--bg-card);
+}
+.search-box input {
+  border: none; outline: none; font-size: 13px; font-family: var(--font-sans);
+  background: transparent; width: 100%;
+}
+.search-box:focus-within { border-color: var(--gold); }
+
+/* Entry list */
+.entry-list { padding: 8px 0; }
+.entry-card {
+  background: var(--bg-card); border-radius: var(--radius-sm); box-shadow: var(--shadow);
+  padding: 14px 16px; margin: 0 20px 8px; border: 1px solid var(--border);
+  cursor: pointer; transition: box-shadow 0.15s;
+}
+.entry-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.entry-card .name { font-weight: 500; font-size: 14px; }
+.entry-card .url { font-size: 11px; color: var(--text-light); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.entry-card .meta { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+.entry-card .meta span { font-size: 11px; color: var(--text-muted); }
+.entry-card .actions { margin-left: auto; display: flex; gap: 4px; }
+.entry-card .actions button {
+  background: none; border: none; cursor: pointer; font-size: 16px; padding: 2px 4px;
+  border-radius: 4px; line-height: 1; color: var(--text-muted);
+}
+.entry-card .actions button:hover { background: var(--gold-bg); color: var(--gold); }
+
+.empty-state { text-align: center; padding: 60px 20px; color: var(--text-light); }
+.empty-state p { font-size: 13px; margin-top: 6px; }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 10px 20px; border-radius: var(--radius-sm); border: none; cursor: pointer;
+  font-size: 13px; font-weight: 500; font-family: var(--font-sans); transition: opacity 0.15s;
+}
+.btn:hover { opacity: 0.85; }
+.btn-gold { background: var(--gold); color: #fff; }
+.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-icon { padding: 6px 8px; font-size: 16px; background: transparent; border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; color: var(--text-muted); }
+.btn-icon:hover { border-color: var(--gold); color: var(--gold); }
+
+/* Modal */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+  z-index: 100; align-items: flex-end; justify-content: center;
+}
+.modal-overlay.active { display: flex; }
+.modal {
+  background: var(--bg-card); border-radius: var(--radius) var(--radius) 0 0;
+  padding: 24px 20px calc(16px + var(--safe-bottom)); width: 100%; max-width: 480px;
+  max-height: 85vh; overflow-y: auto;
+}
+.modal h3 { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
+.modal label { display: block; font-size: 12px; font-weight: 500; margin-bottom: 4px; color: var(--text-muted); }
+.modal input {
+  width: 100%; padding: 10px 12px; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); font-size: 14px; font-family: var(--font-sans);
+  margin-bottom: 12px; outline: none;
+}
+.modal input:focus { border-color: var(--gold); }
+.modal .btn-row { display: flex; gap: 8px; margin-top: 8px; }
+.modal .btn-row .btn { flex: 1; }
+.pw-input-wrap { position: relative; }
+.pw-input-wrap input { padding-right: 36px; }
+.pw-toggle {
+  position: absolute; right: 10px; top: 7px; background: none; border: none;
+  cursor: pointer; font-size: 14px; color: var(--text-muted);
+}
+.pw-toggle:hover { color: var(--text); }
+.copy-btn { cursor: pointer; color: var(--gold); font-size: 12px; margin-left: 6px; background: none; border: none; }
+.copy-btn:hover { text-decoration: underline; }
+
+/* Detail view */
+.detail-card {
+  background: var(--bg-card); border-radius: var(--radius-sm); box-shadow: var(--shadow);
+  padding: 16px; margin: 12px 20px; border: 1px solid var(--border);
+}
+.detail-card .row { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.detail-card .row:last-child { border-bottom: none; }
+.detail-card .label { font-size: 11px; color: var(--text-muted); width: 70px; flex-shrink: 0; }
+.detail-card .value { font-size: 13px; word-break: break-all; flex: 1; }
+.detail-card .value.pw { font-family: monospace; letter-spacing: 2px; }
+
+/* Bottom nav */
+.nav-bar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
+  background: var(--bg-card); border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-around;
+  height: 56px; padding-bottom: var(--safe-bottom);
+}
+.nav-item {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  text-decoration: none; font-size: 10px; color: var(--text-light); padding: 4px 12px;
+}
+.nav-item .nav-icon { font-size: 20px; font-style: normal; }
+.nav-item.active { color: var(--gold); }
+.nav-item:hover { color: var(--text); }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 360px) {
+  .container { max-width: 100%; }
+  .screen { padding: 20px 12px; }
+  .auth-box { padding: 20px 16px; }
+  .entry-row { flex-wrap: wrap; gap: 4px; }
+  .entry-actions { flex-wrap: wrap; gap: 4px; }
+  .search-row { flex-direction: column; gap: 6px; }
+  .search-row input { max-width: 100%; }
+}
+@media (max-width: 480px) {
+  .container { max-width: 100%; }
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  .container { padding: 0 0 calc(48px + var(--safe-bottom) + 8px); }
+  .screen { padding: 12px 16px; }
+  .screen.active { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-start; }
+  .auth-box { padding: 16px; margin-top: 8px; max-width: 360px; }
+  .screen-title { font-size: 16px; margin-bottom: 8px; }
+  .form-group { margin-bottom: 6px; }
+  .entry-item { padding: 8px 10px; }
+}
+@media (min-width: 640px) and (max-width: 1024px) {
+  .container { max-width: 100%; }
+  .entries-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Unlock Screen -->
+  <div class="screen active" id="screen-unlock">
+    <div class="auth-box">
+      <h1>🔐 Vault</h1>
+      <p>Pengurus Kata Laluan Peribadi</p>
+      <label for="master-pw">Kata Laluan Induk</label>
+      <input type="password" id="master-pw" placeholder="Masukkan master password" autocomplete="off">
+      <button class="btn btn-gold" id="btn-unlock">Buka Vault</button>
+      <div class="auth-error" id="unlock-error"></div>
+    </div>
+  </div>
+
+  <!-- Setup Screen -->
+  <div class="screen" id="screen-setup">
+    <div class="auth-box">
+      <h1>🔐 Sediakan Vault</h1>
+      <p>Buat kata laluan induk untuk melindungi kata laluan anda</p>
+      <label for="setup-pw">Kata Laluan Induk</label>
+      <input type="password" id="setup-pw" placeholder="Minimum 8 aksara" autocomplete="off">
+      <label for="setup-pw2">Ulang Kata Laluan</label>
+      <input type="password" id="setup-pw2" placeholder="Taip semula" autocomplete="off">
+      <button class="btn btn-gold" id="btn-setup">Sahkan & Buka Vault</button>
+      <div class="auth-error" id="setup-error"></div>
+    </div>
+  </div>
+
+  <!-- Main Vault Screen -->
+  <div class="screen" id="screen-vault">
+    <div class="vault-header">
+      <a class="back-link" href="../index.html">← Dashboard</a>
+      <h2>🔐 Vault</h2>
+      <button class="btn-icon" id="btn-lock" title="Kunci Vault">🔒</button>
+    </div>
+    <div class="toolbar">
+      <div class="search-box">
+        <span>🔍</span>
+        <input type="text" id="search-input" placeholder="Cari...">
+      </div>
+      <button class="btn btn-gold btn-sm" id="btn-add" style="margin-left:8px">+ Tambah</button>
+    </div>
+    <div class="entry-list" id="entry-list">
+      <div class="empty-state">
+        <div style="font-size:48px">📋</div>
+        <p>Belum ada kata laluan disimpan</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Bottom Nav -->
+<nav class="nav-bar" id="bottom-nav" style="display:none">
+  <a class="nav-item" href="../index.html"><span class="nav-icon">🏠</span><span>Dashboard</span></a>
+  <a class="nav-item" href="../quran.html"><span class="nav-icon">📖</span><span>Quran</span></a>
+  <a class="nav-item active" href="#"><span class="nav-icon">🔐</span><span>Vault</span></a>
+  <a class="nav-item" href="../sistem-doa/index.html"><span class="nav-icon">🤲</span><span>Doa</span></a>
+  <a class="nav-item" href="../sistem-kewangan/index.html"><span class="nav-icon">💰</span><span>Kewangan</span></a>
+  <a class="nav-item" href="../sistem-menu/index.html"><span class="nav-icon">⚙️</span><span>Menu</span></a>
+</nav>
+
+<!-- Add/Edit Modal -->
+<div class="modal-overlay" id="modal-form">
+  <div class="modal">
+    <h3 id="modal-title">Tambah Entry Baru</h3>
+    <label for="field-name">Nama Laman</label>
+    <input type="text" id="field-name" placeholder="Contoh: Gmail">
+    <label for="field-url">URL</label>
+    <input type="text" id="field-url" placeholder="https://mail.google.com">
+    <label for="field-username">Nama Pengguna / Email</label>
+    <input type="text" id="field-username" placeholder="user@example.com">
+    <label for="field-password">Kata Laluan</label>
+    <div class="pw-input-wrap">
+      <input type="password" id="field-password" placeholder="Kata laluan">
+      <button class="pw-toggle" id="toggle-field-pw" type="button">👁</button>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-outline" id="btn-cancel-form">Batal</button>
+      <button class="btn btn-gold" id="btn-save-form">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Detail Modal -->
+<div class="modal-overlay" id="modal-detail">
+  <div class="modal">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <h3 id="detail-title" style="margin-bottom:0">Nama Laman</h3>
+      <div style="display:flex;gap:4px">
+        <button class="btn-icon" id="btn-edit-entry" title="Edit">✏️</button>
+        <button class="btn-icon" id="btn-delete-entry" title="Padam" style="color:#dc2626">🗑</button>
+      </div>
+    </div>
+    <div class="detail-card" id="detail-card">
+      <div class="row"><span class="label">URL</span><span class="value" id="detail-url">—</span></div>
+      <div class="row"><span class="label">User</span><span class="value" id="detail-username">—</span></div>
+      <div class="row">
+        <span class="label">Password</span>
+        <span class="value pw" id="detail-password">••••••••</span>
+        <button class="copy-btn" id="btn-copy-pw" title="Salin">📋 Salin</button>
+      </div>
+    </div>
+    <div style="margin-top:12px">
+      <button class="btn btn-outline" id="btn-close-detail" style="width:100%">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<script defer>
+/* ─── Crypto Helpers ─── */
+const VAULT_STORAGE_KEY = 'quran_vault';
+const SALT_STORAGE_KEY = 'quran_vault_salt';
+
+function isVaultInitialized() {
+  return !!localStorage.getItem(SALT_STORAGE_KEY);
+}
+
+function getStoredSalt() {
+  const raw = localStorage.getItem(SALT_STORAGE_KEY);
+  return raw ? new Uint8Array(JSON.parse(atob(raw))) : null;
+}
+
+function setStoredSalt(salt) {
+  localStorage.setItem(SALT_STORAGE_KEY, btoa(JSON.stringify(Array.from(salt))));
+}
+
+async function deriveKey(password, salt) {
+  const enc = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']
+  );
+  return crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt, iterations: 600000, hash: 'SHA-256' },
+    keyMaterial,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt']
+  );
+}
+
+function generateIV() {
+  return crypto.getRandomValues(new Uint8Array(12));
+}
+
+async function encryptData(key, plaintext) {
+  const iv = generateIV();
+  const enc = new TextEncoder();
+  const encrypted = await crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv },
+    key,
+    enc.encode(JSON.stringify(plaintext))
+  );
+  const combined = new Uint8Array(iv.length + encrypted.byteLength);
+  combined.set(iv);
+  combined.set(new Uint8Array(encrypted), iv.length);
+  return btoa(String.fromCharCode(...combined));
+}
+
+async function decryptData(key, encoded) {
+  try {
+    const raw = Uint8Array.from(atob(encoded), c => c.charCodeAt(0));
+    const iv = raw.slice(0, 12);
+    const data = raw.slice(12);
+    const decrypted = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv },
+      key,
+      data
+    );
+    return JSON.parse(new TextDecoder().decode(decrypted));
+  } catch (e) {
+    throw new Error('Master password salah');
+  }
+}
+
+async function getEntries(key) {
+  const raw = localStorage.getItem(VAULT_STORAGE_KEY);
+  if (!raw) return [];
+  return decryptData(key, raw);
+}
+
+async function saveEntries(key, entries) {
+  const encrypted = await encryptData(key, entries);
+  localStorage.setItem(VAULT_STORAGE_KEY, encrypted);
+}
+
+function $ (id) { return document.getElementById(id); }
+
+/* ─── State ─── */
+var vaultKey = null;
+var vaultEntries = [];
+var editingIndex = -1;
+
+/* ─── Screen management ─── */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+  $(id).classList.add('active');
+  var nav = $('bottom-nav');
+  nav.style.display = id === 'screen-vault' ? 'flex' : 'none';
+}
+
+/* ─── Init ─── */
+function init() {
+  if (isVaultInitialized()) {
+    showScreen('screen-unlock');
+  } else {
+    showScreen('screen-setup');
+  }
+}
+
+/* ─── Setup ─── */
+$('btn-setup').addEventListener('click', async function() {
+  var pw = $('setup-pw').value;
+  var pw2 = $('setup-pw2').value;
+  var err = $('setup-error');
+  if (pw.length < 8) { err.textContent = 'Minimum 8 aksara'; return; }
+  if (pw !== pw2) { err.textContent = 'Kata laluan tidak sepadan'; return; }
+  err.textContent = '';
+  try {
+    var salt = crypto.getRandomValues(new Uint8Array(16));
+    setStoredSalt(salt);
+    vaultKey = await deriveKey(pw, salt);
+    vaultEntries = [];
+    await saveEntries(vaultKey, vaultEntries);
+    $('setup-pw').value = '';
+    $('setup-pw2').value = '';
+    openVault();
+  } catch (e) {
+    err.textContent = 'Ralat: ' + e.message;
+  }
+});
+
+/* ─── Unlock ─── */
+$('btn-unlock').addEventListener('click', unlockVault);
+$('master-pw').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') unlockVault();
+});
+
+async function unlockVault() {
+  var pw = $('master-pw').value;
+  var err = $('unlock-error');
+  err.textContent = '';
+  try {
+    var salt = getStoredSalt();
+    if (!salt) { err.textContent = 'Vault belum disediakan'; return; }
+    vaultKey = await deriveKey(pw, salt);
+    vaultEntries = await getEntries(vaultKey);
+    $('master-pw').value = '';
+    openVault();
+  } catch (e) {
+    err.textContent = e.message;
+  }
+}
+
+/* ─── Open Vault ─── */
+function openVault() {
+  showScreen('screen-vault');
+  renderEntries();
+}
+
+/* ─── Lock ─── */
+$('btn-lock').addEventListener('click', function() {
+  vaultKey = null;
+  vaultEntries = [];
+  $('master-pw').value = '';
+  showScreen('screen-unlock');
+});
+
+/* ─── Render entries ─── */
+function renderEntries(filter) {
+  var list = $('entry-list');
+  var q = (filter || $('search-input').value || '').toLowerCase();
+  var filtered = q ? vaultEntries.filter(function(e) {
+    return (e.name || '').toLowerCase().includes(q) ||
+           (e.url || '').toLowerCase().includes(q) ||
+           (e.username || '').toLowerCase().includes(q);
+  }) : vaultEntries;
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div style="font-size:48px">📋</div><p>' +
+      (q ? 'Tiada hasil carian' : 'Belum ada kata laluan disimpan') + '</p></div>';
+    return;
+  }
+
+  list.textContent = '';
+  filtered.forEach(function(entry, i) {
+    var origIdx = vaultEntries.indexOf(entry);
+    var card = document.createElement('div');
+    card.className = 'entry-card';
+    card.innerHTML =
+      '<div class="name">' + escHtml(entry.name || '(tanpa nama)') + '</div>' +
+      (entry.url ? '<div class="url">' + escHtml(entry.url) + '</div>' : '') +
+      '<div class="meta"><span>' + escHtml(entry.username || '—') + '</span>' +
+      '<div class="actions">' +
+        '<button class="view-btn" data-index="' + origIdx + '" title="Lihat">👁</button>' +
+        '<button class="del-btn" data-index="' + origIdx + '" title="Padam">🗑</button>' +
+      '</div></div>';
+    list.appendChild(card);
+
+    card.querySelector('.view-btn').addEventListener('click', function(e) {
+      e.stopPropagation();
+      showDetail(parseInt(this.dataset.index));
+    });
+    card.querySelector('.del-btn').addEventListener('click', function(e) {
+      e.stopPropagation();
+      deleteEntry(parseInt(this.dataset.index));
+    });
+    card.addEventListener('click', function() {
+      showDetail(parseInt(this.querySelector('.view-btn').dataset.index));
+    });
+  });
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  var d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+$('search-input').addEventListener('input', function() {
+  renderEntries();
+});
+
+/* ─── Add entry ─── */
+$('btn-add').addEventListener('click', function() {
+  editingIndex = -1;
+  $('modal-title').textContent = 'Tambah Entry Baru';
+  $('field-name').value = '';
+  $('field-url').value = '';
+  $('field-username').value = '';
+  $('field-password').value = '';
+  $('modal-form').classList.add('active');
+});
+
+$('btn-cancel-form').addEventListener('click', function() {
+  $('modal-form').classList.remove('active');
+});
+
+$('toggle-field-pw').addEventListener('click', function() {
+  var pw = $('field-password');
+  pw.type = pw.type === 'password' ? 'text' : 'password';
+});
+
+$('btn-save-form').addEventListener('click', async function() {
+  var name = $('field-name').value.trim();
+  var url = $('field-url').value.trim();
+  var username = $('field-username').value.trim();
+  var password = $('field-password').value;
+
+  if (!name) { alert('Nama laman wajib diisi'); return; }
+
+  var entry = { name: name, url: url, username: username, password: password };
+
+  if (editingIndex >= 0) {
+    vaultEntries[editingIndex] = entry;
+  } else {
+    vaultEntries.push(entry);
+  }
+
+  try {
+    await saveEntries(vaultKey, vaultEntries);
+    $('modal-form').classList.remove('active');
+    renderEntries();
+  } catch (e) {
+    alert('Gagal menyimpan: ' + e.message);
+  }
+});
+
+/* ─── Detail view ─── */
+function showDetail(index) {
+  var entry = vaultEntries[index];
+  if (!entry) return;
+  editingIndex = index;
+  $('detail-title').textContent = escHtml(entry.name);
+  $('detail-url').textContent = entry.url || '—';
+  if (entry.url) {
+    $('detail-url').innerHTML = '<a href="' + escHtml(entry.url) + '" target="_blank" style="color:var(--gold);font-size:13px">' + escHtml(entry.url) + '</a>';
+  }
+  $('detail-username').textContent = entry.username || '—';
+  $('detail-password').textContent = entry.password || '—';
+  $('modal-detail').classList.add('active');
+}
+
+$('btn-close-detail').addEventListener('click', function() {
+  $('modal-detail').classList.remove('active');
+});
+
+$('btn-edit-entry').addEventListener('click', function() {
+  $('modal-detail').classList.remove('active');
+  var entry = vaultEntries[editingIndex];
+  if (!entry) return;
+  $('modal-title').textContent = 'Edit Entry';
+  $('field-name').value = entry.name || '';
+  $('field-url').value = entry.url || '';
+  $('field-username').value = entry.username || '';
+  $('field-password').value = entry.password || '';
+  $('modal-form').classList.add('active');
+});
+
+$('btn-delete-entry').addEventListener('click', function() {
+  deleteEntry(editingIndex);
+});
+
+async function deleteEntry(index) {
+  if (index < 0 || index >= vaultEntries.length) return;
+  if (!confirm('Padam entry "' + (vaultEntries[index].name || '') + '"?')) return;
+  vaultEntries.splice(index, 1);
+  try {
+    await saveEntries(vaultKey, vaultEntries);
+    $('modal-detail').classList.remove('active');
+    renderEntries();
+  } catch (e) {
+    alert('Gagal memadam: ' + e.message);
+  }
+}
+
+/* ─── Copy password ─── */
+$('btn-copy-pw').addEventListener('click', function() {
+  var entry = vaultEntries[editingIndex];
+  if (!entry || !entry.password) return;
+  navigator.clipboard.writeText(entry.password).then(function() {
+    var btn = $('btn-copy-pw');
+    btn.textContent = '✅ Disalin';
+    setTimeout(function() { btn.innerHTML = '📋 Salin'; }, 2000);
+  }).catch(function() {});
+});
+
+/* ─── Close modals on overlay click ─── */
+document.querySelectorAll('.modal-overlay').forEach(function(el) {
+  el.addEventListener('click', function(e) {
+    if (e.target === el) el.classList.remove('active');
+  });
+});
+
+/* ─── Boot ─── */
+init();
+</script>
+</body>
+</html>

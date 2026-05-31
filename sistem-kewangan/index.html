@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f8f9fa">
+<title>Kewangan — Quran Hub</title>
+<link rel="stylesheet" href="../shared-responsive.css">
+<script src="../shared-responsive.js" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f8f9fa; --bg-card: #fff; --text: #1a1a1a; --text-muted: #6c757d;
+  --border: #e5e7eb; --radius: 12px; --radius-sm: 8px; --gold: #b8860b;
+  --gold-light: #daa520; --success: #1d9e75; --danger: #e24b4a; --info: #378add;
+  --warning: #ba7517; --font: 'DM Sans', system-ui, sans-serif;
+  --font-sans: 'DM Sans', system-ui, sans-serif;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font); background: var(--bg); color: var(--text);
+  min-height: 100vh; font-size: 14px; line-height: 1.5;
+}
+.container { max-width: 720px; margin: 0 auto; padding: 16px 16px calc(64px + var(--safe-bottom) + 16px); }
+.top-bar {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
+}
+.top-bar a {
+  color: var(--text-muted); text-decoration: none; font-size: 13px;
+  display: flex; align-items: center; gap: 4px;
+}
+.top-bar a:hover { color: var(--gold); }
+.top-bar h1 { font-size: 1rem; font-weight: 600; flex: 1; }
+.tabs {
+  display: flex; border-bottom: 1px solid var(--border); gap: 2px; margin-bottom: 16px;
+  overflow-x: auto; -webkit-overflow-scrolling: touch;
+}
+.tab-btn {
+  padding: 8px 14px; font-size: 13px; font-weight: 500; background: none;
+  border: none; border-bottom: 2px solid transparent; color: var(--text-muted);
+  cursor: pointer; white-space: nowrap; font-family: var(--font);
+}
+.tab-btn.active { color: var(--text); border-bottom-color: var(--text); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.section-title {
+  font-size: 12px; font-weight: 600; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: .6px; margin: 16px 0 8px;
+}
+.month-row {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;
+}
+.month-row select { font-size: 13px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; }
+.badge {
+  font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: 20px;
+}
+.badge-green { background: #e1f5ee; color: #085041; }
+.badge-red { background: #fce4ec; color: #c62828; }
+.summary-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px;
+}
+.metric-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 12px 14px;
+}
+.metric-label { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+.metric-val { font-size: 20px; font-weight: 600; }
+.metric-val.green { color: var(--success); }
+.metric-val.red { color: var(--danger); }
+.metric-val.blue { color: var(--info); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th {
+  font-size: 11px; font-weight: 600; color: var(--text-muted); text-align: left;
+  padding: 6px 10px; border-bottom: 1px solid var(--border);
+}
+td { padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(0,0,0,0.02); }
+.cat-pill {
+  display: inline-flex; align-items: center; gap: 4px; font-size: 11px;
+  padding: 2px 10px; border-radius: 12px; font-weight: 500;
+}
+.pill-income { background: #e1f5ee; color: #085041; }
+.pill-invest { background: #e6f1fb; color: #0c447c; }
+.pill-bill { background: #faece7; color: #712b13; }
+.pill-zakat { background: #faeeda; color: #633806; }
+.amount-pos { color: var(--success); font-weight: 500; }
+.amount-neg { color: var(--danger); font-weight: 500; }
+.add-row {
+  display: flex; gap: 8px; margin-top: 10px; align-items: center; flex-wrap: wrap;
+}
+.add-row input, .add-row select {
+  font-size: 13px; padding: 6px 10px; border: 1px solid var(--border);
+  border-radius: 6px; font-family: var(--font); background: var(--bg-card);
+}
+.add-row input[type=number] { max-width: 130px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+.btn-add {
+  font-size: 13px; padding: 6px 14px; cursor: pointer; white-space: nowrap;
+  background: var(--gold); color: white; border: none; border-radius: 6px;
+  font-family: var(--font); font-weight: 500;
+}
+.btn-add:hover { opacity: 0.9; }
+.btn-del {
+  background: none; border: none; cursor: pointer; color: var(--text-muted);
+  font-size: 16px; padding: 2px 6px;
+}
+.btn-del:hover { color: var(--danger); }
+.bs-row { display: flex; gap: 16px; margin-top: 0; }
+.bs-col { flex: 1; min-width: 0; }
+.bs-col-title {
+  font-size: 12px; font-weight: 600; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: .6px; padding: 8px 12px;
+  background: var(--bg); border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  border: 1px solid var(--border); border-bottom: none;
+}
+.bs-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.bs-table td { padding: 7px 12px; border-bottom: 1px solid var(--border); }
+.bs-table tr:last-child td { border-bottom: none; }
+.equity-box {
+  margin-top: 12px; padding: 12px 14px; background: var(--bg-card);
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.pelaburan-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;
+}
+.invest-card {
+  border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px;
+  background: var(--bg-card);
+}
+.invest-card-title {
+  font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px;
+  display: flex; align-items: center; gap: 6px;
+}
+.invest-val { font-size: 17px; font-weight: 600; margin-bottom: 4px; }
+.invest-sub { font-size: 11px; color: var(--text-muted); }
+.gain-pos { color: var(--success); font-size: 12px; font-weight: 500; }
+.gain-neg { color: var(--danger); font-size: 12px; font-weight: 500; }
+.progress-bar {
+  height: 4px; background: var(--border); border-radius: 2px; margin: 8px 0 4px;
+}
+.progress-fill { height: 100%; border-radius: 2px; }
+.zakat-box {
+  background: #fff8e1; border: 1px solid #ffe082; border-radius: var(--radius-sm);
+  padding: 12px 14px; margin-top: 12px; display: flex;
+  align-items: center; justify-content: space-between;
+}
+.zakat-text { font-size: 13px; color: #633806; }
+.zakat-amt { font-size: 16px; font-weight: 600; color: #633806; }
+
+/* Global nav bar */
+.nav-bar {
+  display: flex; overflow-x: auto;
+  border-top: 1px solid var(--border); position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--bg-card); z-index: 100; padding-bottom: var(--safe-bottom);
+}
+.nav-item {
+  flex: 1; min-width: 60px;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 8px 4px 6px; gap: 2px; cursor: pointer; text-decoration: none;
+  color: var(--text-muted); transition: color 0.15s;
+}
+.nav-item:hover { color: var(--gold); }
+.nav-item .nav-icon { font-size: 20px; font-style: normal; }
+.nav-item span { font-size: 10px; font-family: var(--font-sans); }
+.nav-item.active { color: var(--gold); }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 360px) {
+  .container { padding: 8px 8px calc(56px + var(--safe-bottom) + 8px); }
+  .top-bar { gap: 6px; margin-bottom: 8px; }
+  .top-bar h1 { font-size: 15px; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+  .add-row { flex-direction: column; gap: 6px; }
+  .add-row input[type=number] { max-width: 100%; }
+  .tabs { gap: 2px; }
+  .tab { font-size: 11px; padding: 8px 6px; }
+  .entry-row { flex-wrap: wrap; gap: 4px; }
+}
+@media (max-width: 480px) {
+  .container { padding: 12px 12px calc(60px + var(--safe-bottom) + 12px); }
+  .stats-grid { gap: 8px; }
+  .trans-row { flex-wrap: wrap; gap: 6px; }
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  .container { padding: 6px 12px calc(52px + var(--safe-bottom) + 6px); }
+  .top-bar { margin-bottom: 6px; }
+  .stats-grid { grid-template-columns: repeat(3, 1fr); gap: 4px; }
+  .stat-card { padding: 8px; }
+  .stat-num { font-size: 1.2rem; }
+  .zakat-box { padding: 8px 12px; margin-bottom: 8px; }
+}
+@media (min-width: 640px) and (max-width: 1024px) {
+  .container { max-width: 100%; padding: 20px 24px calc(64px + var(--safe-bottom) + 16px); }
+  .stats-grid { grid-template-columns: repeat(4, 1fr); }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="top-bar">
+    <a href="../index.html">← Hub</a>
+    <h1>Kewangan Peribadi</h1>
+  </div>
+
+  <div class="tabs" role="tablist" aria-label="Tab kewangan">
+    <button class="tab-btn active" role="tab" aria-selected="true" onclick="switchTab('bs')">Balance Sheet</button>
+    <button class="tab-btn" role="tab" aria-selected="false" onclick="switchTab('income')">Pendapatan</button>
+    <button class="tab-btn" role="tab" aria-selected="false" onclick="switchTab('invest')">Pelaburan</button>
+    <button class="tab-btn" role="tab" aria-selected="false" onclick="switchTab('bills')">Bil & Hangus</button>
+  </div>
+
+  <div class="month-row">
+    <select id="month-select" onchange="render()"></select>
+    <span id="net-badge" class="badge badge-green">+ RM 0</span>
+  </div>
+
+  <div class="summary-grid">
+    <div class="metric-card">
+      <div class="metric-label">Jumlah Masuk</div>
+      <div class="metric-val green" id="total-in">RM 0</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Jumlah Keluar</div>
+      <div class="metric-val red" id="total-out">RM 0</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Baki Bersih</div>
+      <div class="metric-val blue" id="net-val">RM 0</div>
+    </div>
+  </div>
+
+  <div id="tab-bs" class="tab-panel active" role="tabpanel" aria-label="Balance Sheet">
+    <div class="bs-row">
+      <div class="bs-col">
+        <div class="bs-col-title">Aset</div>
+        <table class="bs-table"><tbody id="bs-asset-body"></tbody></table>
+      </div>
+      <div class="bs-col">
+        <div class="bs-col-title" style="color:var(--danger)">Liabiliti</div>
+        <table class="bs-table"><tbody id="bs-liab-body"></tbody></table>
+      </div>
+    </div>
+    <div class="equity-box">
+      <span style="font-weight:500">Ekuiti Bersih</span>
+      <span id="equity-val" style="font-size:18px;font-weight:600;color:var(--success)">RM 0</span>
+    </div>
+  </div>
+
+  <div id="tab-income" class="tab-panel" role="tabpanel" aria-label="Pendapatan">
+    <div class="section-title">Pengagihan Pendapatan</div>
+    <table>
+      <thead><tr><th>Kategori</th><th>Perihal</th><th style="text-align:right">RM</th><th>%</th><th></th></tr></thead>
+      <tbody id="income-body"></tbody>
+    </table>
+    <div class="add-row">
+      <select id="inc-cat">
+        <option value="Gaji">Gaji</option>
+        <option value="Simpanan">Simpanan</option>
+        <option value="Keperluan Asas">Keperluan Asas</option>
+        <option value="Keluarga">Keluarga</option>
+        <option value="Pendidikan">Pendidikan</option>
+        <option value="Zakat/Infaq">Zakat/Infaq</option>
+        <option value="Kesihatan">Kesihatan</option>
+        <option value="Pendapatan Lain">Pendapatan Lain</option>
+      </select>
+      <label for="inc-desc" class="sr-only">Perihal pendapatan</label>
+      <input type="text" id="inc-desc" placeholder="Perihal" style="min-width:120px">
+      <label for="inc-amt" class="sr-only">Jumlah pendapatan</label>
+      <input type="number" id="inc-amt" placeholder="RM" min="0">
+      <button class="btn-add" onclick="addIncome()">Tambah</button>
+    </div>
+    <div id="zakat-notice" class="zakat-box" style="display:none">
+      <div>
+        <div style="font-size:11px;font-weight:600;margin-bottom:2px">Zakat Pendapatan (2.5%)</div>
+        <div class="zakat-text" id="zakat-text">Gaji melebihi nisab — wajib zakat</div>
+      </div>
+      <div class="zakat-amt" id="zakat-amt">RM 0</div>
+    </div>
+  </div>
+
+  <div id="tab-invest" class="tab-panel" role="tabpanel" aria-label="Pelaburan">
+    <div class="section-title">Portfolio Pelaburan</div>
+    <div class="pelaburan-grid" id="invest-grid"></div>
+    <div class="section-title" style="margin-top:16px">Tambah Pelaburan</div>
+    <div class="add-row">
+      <select id="inv-type">
+        <option>Emas</option><option>ASB</option><option>Saham</option>
+        <option>IPO</option><option>Kripto/Digital</option>
+      </select>
+      <label for="inv-name" class="sr-only">Nama pelaburan</label>
+      <input type="text" id="inv-name" placeholder="Nama" style="min-width:130px">
+      <label for="inv-unit" class="sr-only">Unit pelaburan</label>
+      <input type="number" id="inv-unit" placeholder="Unit" min="0" step="0.01">
+      <label for="inv-buy" class="sr-only">Harga beli</label>
+      <input type="number" id="inv-buy" placeholder="Harga beli (RM)" min="0" step="0.01">
+      <label for="inv-cur" class="sr-only">Harga semasa</label>
+      <input type="number" id="inv-cur" placeholder="Harga semasa (RM)" min="0" step="0.01">
+      <button class="btn-add" onclick="addInvest()">Tambah</button>
+    </div>
+  </div>
+
+  <div id="tab-bills" class="tab-panel" role="tabpanel" aria-label="Bil & Hangus">
+    <div class="section-title">Bil Tetap & Belanja Hangus</div>
+    <table>
+      <thead><tr><th>Kategori</th><th>Perihal</th><th style="text-align:right">RM</th><th>Status</th><th></th></tr></thead>
+      <tbody id="bills-body"></tbody>
+    </table>
+    <div class="add-row">
+      <select id="bill-cat">
+        <option value="Kehendak">Kehendak</option><option value="Kenderaan">Kenderaan</option>
+        <option value="Internet">Internet</option><option value="Air">Air</option>
+        <option value="Elektrik">Elektrik</option><option value="Cukai">Cukai</option>
+        <option value="Lain-lain">Lain-lain</option>
+      </select>
+      <label for="bill-desc" class="sr-only">Perihal bil</label>
+      <input type="text" id="bill-desc" placeholder="Perihal" style="min-width:130px">
+      <label for="bill-amt" class="sr-only">Jumlah bil</label>
+      <input type="number" id="bill-amt" placeholder="RM" min="0">
+      <select id="bill-status">
+        <option value="Sudah Bayar">Sudah Bayar</option>
+        <option value="Belum Bayar">Belum Bayar</option>
+      </select>
+      <button class="btn-add" onclick="addBill()">Tambah</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var STORAGE_KEY = 'quran_kewangan';
+  var defaults = {
+    income: [],
+    invest: [],
+    bills: []
+  };
+
+  function loadData() {
+    var raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      try { return JSON.parse(raw); } catch(e) {}
+    }
+    return JSON.parse(JSON.stringify(defaults));
+  }
+
+  var data = loadData();
+
+  function saveData() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }
+
+  var fmt = function(n) { return 'RM ' + Math.round(n).toLocaleString('ms-MY'); };
+
+  var months = [
+    'Januari','Februari','Mac','April','Mei','Jun',
+    'Julai','Ogos','September','Oktober','November','Disember'
+  ];
+  var sel = document.getElementById('month-select');
+  var now = new Date();
+  for (var m = 0; m < 12; m++) {
+    var d = new Date(now.getFullYear(), m, 1);
+    var val = d.getFullYear() + '-' + String(m+1).padStart(2,'0');
+    var opt = document.createElement('option');
+    opt.value = val;
+    opt.textContent = months[m] + ' ' + d.getFullYear();
+    if (m === now.getMonth()) opt.selected = true;
+    sel.appendChild(opt);
+  }
+
+  function switchTab(id) {
+    var ids = ['bs','income','invest','bills'];
+    document.querySelectorAll('.tab-btn').forEach(function(b, i) {
+      var isActive = ids[i] === id;
+      b.classList.toggle('active', isActive);
+      b.setAttribute('aria-selected', isActive);
+    });
+    document.querySelectorAll('.tab-panel').forEach(function(p) {
+      p.classList.remove('active');
+    });
+    document.getElementById('tab-' + id).classList.add('active');
+  }
+  window.switchTab = switchTab;
+
+  function render() {
+    var gaji = 0;
+    data.income.forEach(function(i) { if (i.cat === 'Gaji' || i.cat === 'Pendapatan Lain') gaji += i.amt; });
+    var totalIn = gaji;
+    var totalSpend = 0;
+    data.income.forEach(function(i) {
+      if (i.cat !== 'Gaji' && i.cat !== 'Pendapatan Lain') totalSpend += i.amt;
+    });
+    var totalBills = 0;
+    data.bills.forEach(function(b) { totalBills += b.amt; });
+    var totalOut = totalSpend + totalBills;
+    var net = totalIn - totalOut;
+
+    document.getElementById('total-in').textContent = fmt(totalIn);
+    document.getElementById('total-out').textContent = fmt(totalOut);
+    document.getElementById('net-val').textContent = fmt(net);
+    var nb = document.getElementById('net-badge');
+    nb.textContent = (net >= 0 ? '+ ' : ' ') + fmt(net);
+    nb.className = 'badge ' + (net >= 0 ? 'badge-green' : 'badge-red');
+
+    renderIncome(totalIn);
+    renderBills();
+    renderInvest();
+    renderBS();
+
+    var z = document.getElementById('zakat-notice');
+    if (totalIn >= 2000) {
+      z.style.display = 'flex';
+      document.getElementById('zakat-amt').textContent = fmt(totalIn * 0.025);
+    } else {
+      z.style.display = 'none';
+    }
+  }
+
+  function escHtml(s) { return String(s).replace(/[&<>"']/g, function(c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+  function renderIncome(totalIn) {
+    var tbody = document.getElementById('income-body');
+    tbody.innerHTML = '';
+    data.income.forEach(function(item, i) {
+      var pct = totalIn > 0 ? ((item.amt / totalIn) * 100).toFixed(1) : '0.0';
+      var isPos = item.cat === 'Gaji' || item.cat === 'Pendapatan Lain';
+      var pill = item.cat === 'Zakat/Infaq' ? 'pill-zakat' : 'pill-income';
+      tbody.innerHTML += '<tr>'
+        + '<td><span class="cat-pill ' + pill + '">' + escHtml(item.cat) + '</span></td>'
+        + '<td>' + escHtml(item.desc) + '</td>'
+        + '<td style="text-align:right" class="' + (isPos ? 'amount-pos' : 'amount-neg') + '">' + fmt(item.amt) + '</td>'
+        + '<td style="font-size:12px;color:var(--text-muted)">' + pct + '%</td>'
+        + '<td><button class="btn-del" onclick="removeItem(\'income\',' + i + ')">×</button></td>'
+        + '</tr>';
+    });
+  }
+
+  function renderBills() {
+    var tbody = document.getElementById('bills-body');
+    tbody.innerHTML = '';
+    data.bills.forEach(function(b, i) {
+      var paid = b.status === 'Sudah Bayar';
+      tbody.innerHTML += '<tr>'
+        + '<td><span class="cat-pill pill-bill">' + escHtml(b.cat) + '</span></td>'
+        + '<td>' + escHtml(b.desc) + '</td>'
+        + '<td style="text-align:right" class="amount-neg">' + fmt(b.amt) + '</td>'
+        + '<td><span style="font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500;background:'
+        + (paid ? '#e1f5ee' : '#fff3e0') + ';color:' + (paid ? '#085041' : '#633806') + '">'
+        + escHtml(b.status) + '</span></td>'
+        + '<td><button class="btn-del" onclick="removeItem(\'bills\',' + i + ')">×</button></td>'
+        + '</tr>';
+    });
+  }
+
+  function renderInvest() {
+    var grid = document.getElementById('invest-grid');
+    grid.innerHTML = '';
+    data.invest.forEach(function(inv, i) {
+      var totalBuy = inv.unit * inv.buy;
+      var totalCur = inv.unit * inv.cur;
+      var gain = totalCur - totalBuy;
+      var gainPct = totalBuy > 0 ? ((gain / totalBuy) * 100).toFixed(1) : '0.0';
+      var progress = Math.min(100, Math.max(0, ((inv.cur - inv.buy) / inv.buy * 100 + 50)));
+      grid.innerHTML += '<div class="invest-card">'
+        + '<div class="invest-card-title">' + escHtml(inv.name) + '</div>'
+        + '<div class="invest-val">' + fmt(totalCur) + '</div>'
+        + '<div class="invest-sub">' + Number(inv.unit).toLocaleString() + ' unit × RM ' + Number(inv.cur).toFixed(2) + '</div>'
+        + '<div class="progress-bar"><div class="progress-fill" style="width:' + progress.toFixed(0) + '%;background:' + (gain >= 0 ? '#1d9e75' : '#e24b4a') + '"></div></div>'
+        + '<div class="' + (gain >= 0 ? 'gain-pos' : 'gain-neg') + '">' + (gain >= 0 ? '▲' : '▼') + ' ' + fmt(Math.abs(gain)) + ' (' + Math.abs(gainPct) + '%)</div>'
+        + '<div style="font-size:10px;color:var(--text-muted);margin-top:2px">Modal: ' + fmt(totalBuy) + '</div>'
+        + '</div>';
+    });
+  }
+
+  function renderBS() {
+    var totalInvest = 0;
+    data.invest.forEach(function(i) { totalInvest += i.unit * i.cur; });
+    var totalSaving = 0;
+    data.income.forEach(function(i) { if (i.cat === 'Simpanan') totalSaving += i.amt; });
+    totalSaving *= 12;
+    var tunai = 3500;
+    var totalBills = 0;
+    data.bills.forEach(function(b) { totalBills += b.amt; });
+    var unpaidBills = 0;
+    data.bills.forEach(function(b) { if (b.status === 'Belum Bayar') unpaidBills += b.amt; });
+
+    document.getElementById('bs-asset-body').innerHTML = ''
+      + '<tr><td style="color:var(--text-muted);font-size:12px">Pelaburan</td><td style="text-align:right;font-weight:500;color:var(--success)">' + fmt(totalInvest) + '</td></tr>'
+      + '<tr><td style="color:var(--text-muted);font-size:12px">Simpanan Terkumpul</td><td style="text-align:right;font-weight:500;color:var(--success)">' + fmt(totalSaving) + '</td></tr>'
+      + '<tr><td style="color:var(--text-muted);font-size:12px">Tunai / Bank</td><td style="text-align:right;font-weight:500;color:var(--success)">' + fmt(tunai) + '</td></tr>';
+
+    document.getElementById('bs-liab-body').innerHTML = ''
+      + '<tr><td style="color:var(--text-muted);font-size:12px">Bil Tertunggak</td><td style="text-align:right;font-weight:500;color:var(--danger)">' + fmt(unpaidBills) + '</td></tr>'
+      + '<tr><td style="color:var(--text-muted);font-size:12px">Ansuran (bulanan)</td><td style="text-align:right;font-weight:500;color:var(--danger)">' + fmt(data.bills.find(function(b){return b.cat==='Kenderaan'}) ? data.bills.find(function(b){return b.cat==='Kenderaan'}).amt : 0) + '</td></tr>';
+
+    var equity = (totalInvest + totalSaving + tunai) - totalBills;
+    var ev = document.getElementById('equity-val');
+    ev.textContent = fmt(equity);
+    ev.style.color = equity >= 0 ? 'var(--success)' : 'var(--danger)';
+  }
+
+  window.addIncome = function() {
+    var cat = document.getElementById('inc-cat').value;
+    var desc = document.getElementById('inc-desc').value.trim() || cat;
+    var amt = parseFloat(document.getElementById('inc-amt').value) || 0;
+    if (amt <= 0) return;
+    data.income.push({cat: cat, desc: desc, amt: amt});
+    document.getElementById('inc-desc').value = '';
+    document.getElementById('inc-amt').value = '';
+    saveData();
+    render();
+  };
+
+  window.addBill = function() {
+    var cat = document.getElementById('bill-cat').value;
+    var desc = document.getElementById('bill-desc').value.trim() || cat;
+    var amt = parseFloat(document.getElementById('bill-amt').value) || 0;
+    var status = document.getElementById('bill-status').value;
+    if (amt <= 0) return;
+    data.bills.push({cat: cat, desc: desc, amt: amt, status: status});
+    document.getElementById('bill-desc').value = '';
+    document.getElementById('bill-amt').value = '';
+    saveData();
+    render();
+  };
+
+  window.addInvest = function() {
+    var type = document.getElementById('inv-type').value;
+    var name = document.getElementById('inv-name').value.trim() || type;
+    var unit = parseFloat(document.getElementById('inv-unit').value) || 0;
+    var buy = parseFloat(document.getElementById('inv-buy').value) || 0;
+    var cur = parseFloat(document.getElementById('inv-cur').value) || buy;
+    if (unit <= 0 || buy <= 0) return;
+    data.invest.push({type: type, name: name, unit: unit, buy: buy, cur: cur});
+    ['inv-name','inv-unit','inv-buy','inv-cur'].forEach(function(id) {
+      document.getElementById(id).value = '';
+    });
+    saveData();
+    render();
+  };
+
+  window.removeItem = function(section, idx) {
+    data[section].splice(idx, 1);
+    saveData();
+    render();
+  };
+
+  render();
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('../sw.js').catch(function(err) {
+        console.warn('[Kewangan] SW registration failed:', err.message);
+      });
+    });
+  }
+})();
+</script>
+
+<nav class="nav-bar">
+  <a class="nav-item" href="../index.html"><span class="nav-icon">🏠</span><span>Dashboard</span></a>
+  <a class="nav-item" href="../quran.html"><span class="nav-icon">📖</span><span>Quran</span></a>
+  <a class="nav-item" href="../sistem-vault/index.html"><span class="nav-icon">🔐</span><span>Vault</span></a>
+  <a class="nav-item" href="../sistem-doa/index.html"><span class="nav-icon">🤲</span><span>Doa</span></a>
+  <a class="nav-item active" href="#"><span class="nav-icon">💰</span><span>Kewangan</span></a>
+  <a class="nav-item" href="../sistem-menu/index.html"><span class="nav-icon">⚙️</span><span>Menu</span></a>
+</nav>
+</body>
+</html>

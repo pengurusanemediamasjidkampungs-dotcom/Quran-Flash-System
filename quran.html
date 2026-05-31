@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="theme-color" content="#080808">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Quran Flash">
+<link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
+<link rel="apple-touch-startup-image" href="assets/icons/icon-512x512.png">
+<link rel="manifest" href="manifest.json">
+<title>Quran Flash System</title>
+<link rel="stylesheet" href="shared-responsive.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+
+<div id="offlineIndicator" class="offline-indicator" style="display:none">Luar Talian</div>
+
+<header>
+  <div class="top-row">
+    <a href="index.html" class="back-link" title="Kembali ke Hub">← Hub</a>
+    <span class="logo">📖  Quran Flash System</span>
+    <button id="themeToggle" class="theme-icon-btn" title="Tukar tema">🌙</button>
+  </div>
+  <div class="meta-row">
+    <span id="surahName">—</span>
+    <span id="ayahInfo">—</span>
+    <span id="revelation"></span>
+  </div>
+</header>
+
+<div class="tab-bar">
+  <button class="tab-btn active" data-tab="read">📖 Baca</button>
+  <button class="tab-btn" data-tab="history">📜 Sejarah <span class="badge-count" id="readCount">0</span></button>
+  <button class="tab-btn" data-tab="stats">📊 Stat</button>
+</div>
+
+<main>
+  <!-- Read Tab -->
+  <div id="readTab" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+    <div id="chat"></div>
+    <div id="loadingSpinner" class="loading-spinner" style="display:none">
+      <div class="spinner"></div>
+      <span>Memuatkan tafsir...</span>
+    </div>
+
+    <div id="collapseBar" class="collapse-bar">
+      <button id="collapseBtn" class="collapse-btn" title="Sembunyi/Tunjuk kawalan">▾</button>
+    </div>
+
+    <div id="controls">
+      <div class="ctrl-row">
+        <button class="btn-surah-picker" id="surahBtn">Pilih Surah</button>
+        <label>Dari</label>
+        <input type="number" id="ayahFrom" min="1">
+        <label>Ke</label>
+        <input type="number" id="ayahTo" min="1">
+        <label>Bhs</label>
+        <select id="langSelect">
+          <option value="ms">Melayu</option>
+          <option value="en">English</option>
+          <option value="none">Arab sahaja</option>
+          <option value="tafsir-muyassar">Tafsir Muyassar</option>
+          <option value="tafsir-jalalayn">Tafsir Jalalayn</option>
+          <option value="tafsir-ar-ibn-kathir">Tafsir Ibn Kathir (Arab)</option>
+          <option value="tafsir-en-ibn-kathir">Tafsir Ibn Kathir (Inggeris)</option>
+        </select>
+      </div>
+      <div class="ctrl-row">
+        <div class="spinner-group">
+          <span class="spinner-label">Font</span>
+          <button class="spinner-btn" id="fontPrev">◀</button>
+          <span class="spinner-value" id="fontValue">Scheherazade New</span>
+          <button class="spinner-btn" id="fontNext">▶</button>
+        </div>
+        <div class="spinner-group">
+          <span class="spinner-label">Saiz</span>
+          <button class="spinner-btn" id="sizeDown">−</button>
+          <span class="spinner-value" id="sizeValue">21</span>
+          <button class="spinner-btn" id="sizeUp">+</button>
+        </div>
+      </div>
+      <div class="ctrl-row">
+        <div class="spinner-group">
+          <span class="spinner-label">Mode</span>
+          <button class="spinner-btn" id="modePrev">◀</button>
+          <span class="spinner-value" id="modeValue">Skrol</span>
+          <button class="spinner-btn" id="modeNext">▶</button>
+        </div>
+      </div>
+      <div class="ctrl-row nav-row">
+        <button class="nav-btn" id="prevBtn">‹</button>
+        <button class="btn btn-selesai" id="selesaiBtn" disabled>✅ Selesai Baca</button>
+        <button class="nav-btn" id="nextBtn">›</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- History Tab -->
+  <div id="historyTab" style="display:none">
+    <div class="hist-header">
+      <h3>Sejarah Bacaan</h3>
+      <button class="btn-danger" id="clearHistory">Padam Semua</button>
+    </div>
+    <div id="historyPanel"></div>
+  </div>
+
+  <!-- Stats Tab -->
+  <div id="statsTab" style="display:none">
+    <div id="statsPanel"></div>
+  </div>
+</main>
+
+<div id="surahSelector" class="selector-overlay" style="display:none">
+  <div class="selector-header">
+    <div class="selector-title-bar">
+      <h2>Pilih Surah</h2>
+      <button class="selector-close" id="selectorClose">&times;</button>
+    </div>
+    <div class="juz-bar" id="juzBar"></div>
+  </div>
+  <div class="surah-list" id="surahList"></div>
+</div>
+<div class="footer-info">offline-first · monospace · quran flash</div>
+
+  <nav class="nav-bar" id="quran-nav" style="display:none">
+    <a class="nav-item" href="index.html"><span class="nav-icon">🏠</span><span>Dashboard</span></a>
+    <a class="nav-item active" href="quran.html"><span class="nav-icon">📖</span><span>Quran</span></a>
+    <a class="nav-item" href="sistem-vault/index.html"><span class="nav-icon">🔐</span><span>Vault</span></a>
+    <a class="nav-item" href="sistem-doa/index.html"><span class="nav-icon">🤲</span><span>Doa</span></a>
+    <a class="nav-item" href="sistem-kewangan/index.html"><span class="nav-icon">💰</span><span>Kewangan</span></a>
+    <a class="nav-item" href="sistem-menu/index.html"><span class="nav-icon">⚙️</span><span>Menu</span></a>
+  </nav>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('sw.js').then(function(reg) {
+      reg.addEventListener('updatefound', function() {
+        var sw = reg.installing;
+        sw.addEventListener('statechange', function() {
+          if (sw.state === 'installed' && navigator.serviceWorker.controller) {
+            var toast = document.getElementById('toast');
+            if (toast) {
+              toast.textContent = 'Kemas kini tersedia. Tutup & buka semula.';
+              toast.className = 'toast show';
+              setTimeout(function() { toast.classList.remove('show'); }, 6000);
+            }
+          }
+        });
+      });
+    }).catch(function(err) {
+      console.error('SW registration failed:', err);
+    });
+  });
+}
+</script>
+<script defer src="shared-responsive.js"></script>
+<script defer src="assets/dexie.min.js"></script>
+<script defer src="assets/anime.min.js"></script>
+<script defer src="data.js"></script>
+<script defer src="app.js"></script>
+</body>
+</html>

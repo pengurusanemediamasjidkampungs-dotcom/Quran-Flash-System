@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#fbfaf6">
+<meta name="description" content="Doa & Zikir — Himpunan doa, zikir, dan ayat pilihan daripada Al-Quran dan Hadis.">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Doa & Zikir">
+<title>Doa & Zikir — Quran Hub</title>
+
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>د</text></svg>">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../shared-responsive.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <a href="#main" class="skip-link">Langkau ke kandungan utama</a>
+
+    <div class="app">
+        <nav class="sidebar" id="sidebar" aria-label="Navigasi utama">
+            <div class="sidebar-header">
+                <span class="sidebar-logo">🤲 Doa & Zikir</span>
+                <button class="icon-btn" id="close-sidebar" aria-label="Tutup sidebar">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                </button>
+            </div>
+
+            <ul class="nav-list" role="list">
+                <li class="nav-item">
+                    <button class="nav-btn-link active" data-page="home">
+                        <svg class="nav-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 6.5L8 2l6 4.5V14H10v-3H6v3H2V6.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" fill="none"/></svg>
+                        Utama
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-btn-link" data-page="search">
+                        <svg class="nav-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M10 10l3.5 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                        Carian
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-btn-link" data-page="favourite">
+                        <svg class="nav-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 13.5S2 9.5 2 5.5a3 3 0 0 1 6-1 3 3 0 0 1 6 1c0 4-6 8-6 8z" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linejoin="round"/></svg>
+                        Kesukaan
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-btn-link" data-page="poster">
+                        <svg class="nav-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M5 8h6M5 5.5h6M5 10.5h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                        Poster
+                    </button>
+                </li>
+                <li class="nav-divider" aria-hidden="true"></li>
+                <li class="nav-item">
+                    <button class="nav-btn-link" data-page="catatan">
+                        <svg class="nav-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 2.5h10M3 5.5h7M3 8.5h10M3 11.5h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M12 10l2 2-3 3h-2v-2l3-3z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" fill="none"/></svg>
+                        Catatan Doa
+                    </button>
+                </li>
+            </ul>
+
+            <div class="sidebar-quick">
+                <div class="sidebar-quick-label">Akses pantas</div>
+                <a class="quick-item" href="#" data-collection="solat">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="4" r="2" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M4 14s0-4 4-4 4 4 4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" fill="none"/></svg>
+                    Doa selepas solat
+                </a>
+                <a class="quick-item" href="#" data-collection="ayat-kursi">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 4h10M3 8h7M3 12h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                    Ayat Kursi
+                </a>
+                <a class="quick-item" href="#" data-collection="mathurat">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M8 5v3.5l2 1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                    Maʼthurat Pagi
+                </a>
+            </div>
+        </nav>
+
+        <div class="overlay" id="overlay" aria-hidden="true"></div>
+
+        <main class="main" id="main" role="main">
+            <div class="topbar">
+                <button class="icon-btn" id="toggle-sidebar" aria-label="Togol sidebar" aria-expanded="false">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 4h12M2 8h12M2 12h8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+                </button>
+                <a href="../index.html" class="hub-link" title="Kembali ke Dashboard">← Hub</a>
+                <span class="topbar-brand">🤲 Doa & Zikir</span>
+                <div class="topbar-spacer"></div>
+                <button class="icon-btn" aria-label="Carian" data-page-btn="search">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M10 10l3.5 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                </button>
+            </div>
+
+            <div class="page active" id="page-home" role="region" aria-label="Laman utama">
+                <div class="hero">
+                    <div class="hero-greeting">Assalamu'alaikum</div>
+                    <blockquote class="hero-quote">"Sebaik-baik doa adalah doa pada hari Arafah."</blockquote>
+                    <div class="hero-ref">[Riwayat al-Tirmizi (3509)]</div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header">
+                        <span class="section-title">Doa hari ini</span>
+                        <a href="#" class="section-action" data-collection="permohonan">Lihat semua</a>
+                    </div>
+                    <div class="daily-card">
+                        <div class="daily-type">
+                            <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true"><circle cx="5" cy="5" r="5"/></svg>
+                            Doa Pilihan Hari Ini
+                        </div>
+                        <div class="arabic-text">لاَ إِلَهَ إِلاَّ اللَّهُ وَحْدَهُ لاَ شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِير</div>
+                        <div class="translation">"Tidak ada yang berhak disembah selain Allah yang satu, tidak ada sekutu bagi-Nya, milik-Nya kekuasaan dan milik-Nya segala pujian, dan Dia Maha Berkuasa atas segala sesuatu."</div>
+                        <div class="hadis-ref">Hadis · Riwayat Al-Tirmizi</div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header">
+                        <span class="section-title">Ayat hari ini</span>
+                        <a href="#" class="section-action" data-collection="quran">Lihat semua</a>
+                    </div>
+                    <div class="daily-card">
+                        <div class="daily-type daily-type--quran">
+                            <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true"><circle cx="5" cy="5" r="5"/></svg>
+                            Ayat Pilihan Hari Ini
+                        </div>
+                        <div class="arabic-text">إِنْ أُرِيدُ إِلَّا ٱلْإِصْلَـٰحَ مَا ٱسْتَطَعْتُ ۚ وَمَا تَوْفِيقِىٓ إِلَّا بِٱللَّهِ</div>
+                        <div class="translation">"Aku hanya bertujuan hendak memperbaiki sedaya upayaku; dan tiadalah aku akan beroleh taufik untuk menjayakannya melainkan dengan pertolongan Allah."</div>
+                        <div class="hadis-ref">Huud · 11:88</div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header">
+                        <span class="section-title">Semua koleksi</span>
+                        <button class="section-action section-action--btn">Susun</button>
+                    </div>
+                    <div class="collection-list" role="list" id="collection-list"></div>
+                </div>
+            </div>
+
+            <div class="page" id="page-search" role="region" aria-label="Carian doa">
+                <div class="search-container">
+                    <h2 class="sr-only">Carian doa dan zikir</h2>
+                    <input type="search" class="search-box" placeholder="Cari doa, zikir, atau ayat..." id="search-input" autocomplete="off" aria-label="Cari doa">
+                    <div class="search-results" id="search-results" role="list" aria-live="polite"></div>
+                </div>
+            </div>
+
+            <div class="page" id="page-favourite" role="region" aria-label="Doa kesukaan">
+                <div id="fav-content"></div>
+            </div>
+
+            <div class="page" id="page-detail" role="region" aria-label="Detail koleksi doa">
+                <div class="prayer-detail" id="detail-content"></div>
+            </div>
+
+            <div class="page page-poster" id="page-poster" role="region" aria-label="Poster doa">
+                <div class="poster-title">Poster Doa</div>
+                <div class="poster-desc">Pilih doa dari koleksi untuk dijadikan poster.</div>
+            </div>
+
+            <div class="page" id="page-catatan" role="region" aria-label="Catatan Doa">
+                <div class="catatan-header">
+                    <h2 class="catatan-title">✏️ Catatan Doa</h2>
+                    <p class="catatan-desc">Tulis catatan doa peribadi anda di sini.</p>
+                </div>
+                <div class="catatan-input-wrap">
+                    <textarea class="catatan-textarea" id="catatan-input" placeholder="Taip doa atau catatan peribadi..." rows="4"></textarea>
+                    <button class="catatan-btn" id="catatan-simpan">Simpan</button>
+                </div>
+                <div class="catatan-list" id="catatan-list"></div>
+            </div>
+        </main>
+    </div>
+
+    <nav class="nav-bar">
+      <a class="nav-item" href="../index.html"><span class="nav-icon">🏠</span><span>Dashboard</span></a>
+      <a class="nav-item" href="../quran.html"><span class="nav-icon">📖</span><span>Quran</span></a>
+      <a class="nav-item" href="../sistem-vault/index.html"><span class="nav-icon">🔐</span><span>Vault</span></a>
+      <a class="nav-item active" href="#"><span class="nav-icon">🤲</span><span>Doa</span></a>
+      <a class="nav-item" href="../sistem-kewangan/index.html"><span class="nav-icon">💰</span><span>Kewangan</span></a>
+      <a class="nav-item" href="../sistem-menu/index.html"><span class="nav-icon">⚙️</span><span>Menu</span></a>
+    </nav>
+
+    <script src="../shared-responsive.js" defer></script>
+    <script src="script.js" defer></script>
+</body>
+</html>

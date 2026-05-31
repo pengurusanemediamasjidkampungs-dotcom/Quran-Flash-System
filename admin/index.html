@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<title>Admin — Quran Flash System</title>
+<link rel="stylesheet" href="../shared-responsive.css">
+<script src="../shared-responsive.js" defer></script>
+<link rel="stylesheet" href="css/admin.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+</style>
+</head>
+<body>
+
+<div id="login-page" class="login-page">
+  <div class="login-card">
+    <div class="login-title">﷽ Admin Panel</div>
+    <div class="form-group">
+      <label for="login-password">Password Admin</label>
+      <input type="password" id="login-password" placeholder="Masukkan password" autocomplete="off">
+    </div>
+    <button class="btn btn-primary" id="login-btn" style="width:100%">Masuk</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<div id="app" class="app" style="display:none">
+  <nav class="sidebar">
+    <div class="sidebar-logo">Quran Flash Admin</div>
+    <ul class="sidebar-nav">
+      <li><a href="#" data-page="dashboard" class="active"><span>📊</span><span>Dashboard</span></a></li>
+      <li><a href="#" data-page="doa"><span>🤲</span><span>Doa & Zikir</span></a></li>
+      <li><a href="#" data-page="kewangan"><span>💰</span><span>Kewangan</span></a></li>
+      <li><a href="#" data-page="settings"><span>⚙️</span><span>Settings</span></a></li>
+    </ul>
+    <button class="logout-btn" id="logout-btn">🚪 Log keluar</button>
+  </nav>
+
+  <main class="main">
+    <div class="main-header">
+      <span class="main-title" id="page-title">Dashboard</span>
+      <span class="main-user" id="main-user">Admin</span>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="section active" id="section-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card"><span class="stat-num" id="stat-surah">—</span><span class="stat-label">Surah</span></div>
+        <div class="stat-card"><span class="stat-num" id="stat-ayat">—</span><span class="stat-label">Ayat</span></div>
+        <div class="stat-card"><span class="stat-num" id="stat-doa">—</span><span class="stat-label">Doa</span></div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px">
+        <p style="color:var(--text-muted);font-size:0.88rem;line-height:1.7">
+          <strong>Quran Flash System v3.0</strong><br>
+          Backend API: Node.js / Express<br>
+          Storage: JSON file-based<br>
+          Frontend: Vanilla JS<br><br>
+          Guna menu sebelah kiri untuk urus data doa, kewangan, dan tetapan sistem.
+        </p>
+      </div>
+    </div>
+
+    <!-- Doa & Zikir -->
+    <div class="section" id="section-doa">
+      <div class="section-header">
+        <span class="section-title">Senarai Doa & Zikir</span>
+        <button class="btn btn-primary" onclick="window._addDoa()">+ Tambah Doa</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Koleksi</th><th>Arab</th><th>Terjemahan</th><th style="width:80px">Tindakan</th></tr></thead>
+          <tbody id="doa-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Kewangan -->
+    <div class="section" id="section-kewangan">
+      <div class="section-header">
+        <span class="section-title">Data Kewangan</span>
+      </div>
+      <div style="margin-bottom:16px">
+        <h4 style="font-size:0.85rem;color:var(--text-muted);margin-bottom:8px">Pendapatan & Pengagihan</h4>
+        <div class="table-wrap"><table><thead><tr><th>Kategori</th><th>Perihal</th><th>Jumlah</th><th style="width:60px"></th></tr></thead><tbody id="kw-income-body"></tbody></table></div>
+      </div>
+      <div style="margin-bottom:16px">
+        <h4 style="font-size:0.85rem;color:var(--text-muted);margin-bottom:8px">Bil & Hangus</h4>
+        <div class="table-wrap"><table><thead><tr><th>Kategori</th><th>Perihal</th><th>Jumlah</th><th style="width:60px"></th></tr></thead><tbody id="kw-bills-body"></tbody></table></div>
+      </div>
+      <div>
+        <h4 style="font-size:0.85rem;color:var(--text-muted);margin-bottom:8px">Pelaburan</h4>
+        <div class="table-wrap"><table><thead><tr><th>Jenis</th><th>Nama</th><th>Unit</th><th style="width:60px"></th></tr></thead><tbody id="kw-invest-body"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- Settings -->
+    <div class="section" id="section-settings">
+      <div class="section-header">
+        <span class="section-title">Tetapan Sistem</span>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px">
+        <div class="form-group">
+          <label>Admin Password</label>
+          <input type="password" id="settings-password" value="" placeholder="Tukar password admin">
+        </div>
+        <div class="form-group">
+          <label>API Base URL</label>
+          <input type="text" id="settings-api" value="" readonly style="background:#f5f5f5">
+        </div>
+        <button class="btn btn-primary" id="settings-save" style="display:none">Simpan</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-backdrop" id="modal">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">Tambah Doa</div>
+    <div id="modal-body"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="modal-close">Batal</button>
+      <button class="btn btn-primary" id="modal-save">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/admin.js"></script>
+</body>
+</html>

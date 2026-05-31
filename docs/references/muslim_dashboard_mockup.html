@@ -1,0 +1,340 @@
+
+<style>
+:root {
+  --gold: #B8860B;
+  --gold-light: #DAA520;
+  --gold-bg: rgba(218,165,32,0.08);
+  --gold-border: rgba(184,134,11,0.2);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+
+.dashboard {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 0 1.5rem;
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  background: var(--color-background-primary);
+}
+
+.header {
+  background: var(--gold-bg);
+  border-bottom: 0.5px solid var(--gold-border);
+  padding: 18px 20px 14px;
+  text-align: center;
+}
+.header .salam {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--gold-light);
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+.header .date-row {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+.header .hijri {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+  margin-top: 2px;
+}
+
+.section {
+  padding: 14px 20px;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+}
+.section:last-child { border-bottom: none; }
+
+.section-label {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--color-text-tertiary);
+  margin-bottom: 8px;
+}
+
+/* Solat widget */
+.solat-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.solat-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.solat-icon {
+  width: 36px; height: 36px;
+  border-radius: var(--border-radius-md);
+  background: var(--gold-bg);
+  border: 0.5px solid var(--gold-border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+.solat-title { font-size: 17px; font-weight: 500; color: var(--color-text-primary); }
+.solat-time { font-size: 22px; font-weight: 500; color: var(--gold-light); }
+.countdown-bar { height: 3px; background: var(--color-border-tertiary); border-radius: 2px; margin-bottom: 6px; }
+.countdown-fill { height: 100%; width: 62%; background: var(--gold-light); border-radius: 2px; }
+.countdown-text { font-size: 12px; color: var(--color-text-secondary); }
+
+.waktu-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  margin-top: 10px;
+}
+.waktu-item {
+  text-align: center;
+  padding: 6px 4px;
+  border-radius: var(--border-radius-md);
+  border: 0.5px solid var(--color-border-tertiary);
+  background: var(--color-background-secondary);
+}
+.waktu-item.active {
+  border-color: var(--gold-border);
+  background: var(--gold-bg);
+}
+.waktu-label { font-size: 10px; color: var(--color-text-tertiary); margin-bottom: 2px; }
+.waktu-val { font-size: 12px; font-weight: 500; color: var(--color-text-primary); }
+.waktu-item.active .waktu-val { color: var(--gold-light); }
+
+/* Ayat widget */
+.ayat-arabic {
+  font-size: 20px;
+  text-align: right;
+  line-height: 1.8;
+  color: var(--color-text-primary);
+  margin-bottom: 8px;
+  direction: rtl;
+}
+.ayat-translation {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  font-style: italic;
+  margin-bottom: 6px;
+}
+.ayat-ref {
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+}
+.refresh-btn {
+  float: right;
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  background: none;
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-md);
+  padding: 3px 8px;
+  cursor: pointer;
+}
+
+/* Doa widget */
+.doa-title-ar {
+  font-size: 16px;
+  text-align: right;
+  direction: rtl;
+  color: var(--color-text-primary);
+  line-height: 1.7;
+  margin-bottom: 6px;
+}
+.doa-text {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+/* Rutin */
+.rutin-list { display: flex; flex-direction: column; gap: 8px; }
+.rutin-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.rutin-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--gold-light);
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+.rutin-waktu {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--gold-light);
+  min-width: 52px;
+  margin-top: 1px;
+}
+.rutin-detail {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+/* Peringatan */
+.reminder-card {
+  padding: 10px 14px;
+  background: var(--color-background-secondary);
+  border-radius: var(--border-radius-md);
+  border-left: 2px solid var(--gold-light);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+/* Nav bar */
+.nav-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 0.5px solid var(--color-border-tertiary);
+  margin-top: 14px;
+}
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 4px 8px;
+  gap: 4px;
+  cursor: pointer;
+  border-right: 0.5px solid var(--color-border-tertiary);
+  transition: background 0.15s;
+}
+.nav-item:last-child { border-right: none; }
+.nav-item:hover { background: var(--color-background-secondary); }
+.nav-item i { font-size: 20px; color: var(--color-text-secondary); }
+.nav-item.active i { color: var(--gold-light); }
+.nav-item span { font-size: 11px; color: var(--color-text-tertiary); }
+.nav-item.active span { color: var(--gold-light); }
+</style>
+
+<h2 class="sr-only">Mockup dashboard harian Muslim — menunjukkan waktu solat, ayat hari ini, doa, rutin harian, dan peringatan</h2>
+
+<div class="dashboard">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="salam">السلام عليكم</div>
+    <div class="date-row">Khamis, 29 Mei 2025</div>
+    <div class="hijri">29 Zulkaedah 1447H</div>
+  </div>
+
+  <!-- Waktu Solat -->
+  <div class="section">
+    <div class="section-label">Waktu Solat</div>
+    <div class="solat-main">
+      <div class="solat-name">
+        <div class="solat-icon">🕌</div>
+        <div>
+          <div class="solat-title">Zohor</div>
+          <div style="font-size:12px;color:var(--color-text-tertiary)">Solat seterusnya</div>
+        </div>
+      </div>
+      <div class="solat-time">01:13</div>
+    </div>
+    <div class="countdown-bar"><div class="countdown-fill"></div></div>
+    <div class="countdown-text">⏳ 42 minit lagi</div>
+    <div class="waktu-grid">
+      <div class="waktu-item">
+        <div class="waktu-label">Subuh</div>
+        <div class="waktu-val">05:54</div>
+      </div>
+      <div class="waktu-item">
+        <div class="waktu-label">Syuruk</div>
+        <div class="waktu-val">07:12</div>
+      </div>
+      <div class="waktu-item active">
+        <div class="waktu-label">Zohor</div>
+        <div class="waktu-val">01:13</div>
+      </div>
+      <div class="waktu-item">
+        <div class="waktu-label">Asar</div>
+        <div class="waktu-val">04:29</div>
+      </div>
+      <div class="waktu-item">
+        <div class="waktu-label">Maghrib</div>
+        <div class="waktu-val">07:28</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ayat Hari Ini -->
+  <div class="section">
+    <div class="section-label">
+      Ayat Hari Ini
+      <button class="refresh-btn" onclick="this.textContent='↻'">↻ lain</button>
+    </div>
+    <div style="clear:both"></div>
+    <div class="ayat-arabic">وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا</div>
+    <div class="ayat-translation">"Dan sesiapa yang bertakwa kepada Allah, nescaya Dia akan mengadakan baginya jalan keluar."</div>
+    <div class="ayat-ref">At-Talaq 65:2</div>
+  </div>
+
+  <!-- Doa Hari Ini -->
+  <div class="section">
+    <div class="section-label">🤲 Doa Hari Ini</div>
+    <div class="doa-title-ar">رَبِّ زِدۡنِي عِلۡمًا</div>
+    <div class="doa-text">"Ya Tuhanku, tambahkanlah ilmu pengetahuan kepadaku." — Ta-Ha 20:114</div>
+  </div>
+
+  <!-- Rutin Harian -->
+  <div class="section">
+    <div class="section-label">⏰ Cadangan Rutin Harian</div>
+    <div class="rutin-list">
+      <div class="rutin-item">
+        <div class="rutin-dot"></div>
+        <div class="rutin-waktu">Subuh</div>
+        <div class="rutin-detail">Qiyamullail, zikir pagi, tilawah sekurang-kurangnya 1 muka surat</div>
+      </div>
+      <div class="rutin-item">
+        <div class="rutin-dot"></div>
+        <div class="rutin-waktu">Pagi</div>
+        <div class="rutin-detail">Kerja dengan niat, jaga adab, elak ghibah dan sia-sia</div>
+      </div>
+      <div class="rutin-item">
+        <div class="rutin-dot"></div>
+        <div class="rutin-waktu">Petang</div>
+        <div class="rutin-detail">Asar tepat waktu, zikir petang, masa bersama keluarga</div>
+      </div>
+      <div class="rutin-item">
+        <div class="rutin-dot"></div>
+        <div class="rutin-waktu">Malam</div>
+        <div class="rutin-detail">Isyak berjemaah jika mampu, tadabbur al-Quran, tidur awal</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Peringatan -->
+  <div class="section">
+    <div class="section-label">⚠️ Peringatan Hari Ini</div>
+    <div class="reminder-card">
+      "Jaga lisanmu — setiap perkataan dicatat. Lebih baik diam daripada bercakap perkara yang tidak memberi manfaat."
+    </div>
+  </div>
+
+  <!-- Nav Bar -->
+  <div class="nav-bar">
+    <div class="nav-item" onclick="sendPrompt('Buka modul Quran')">
+      <i class="ti ti-book" aria-hidden="true"></i>
+      <span>Quran</span>
+    </div>
+    <div class="nav-item active">
+      <i class="ti ti-mosque" aria-hidden="true"></i>
+      <span>Solat</span>
+    </div>
+    <div class="nav-item" onclick="sendPrompt('Buka modul Doa')">
+      <i class="ti ti-hand-stop" aria-hidden="true"></i>
+      <span>Doa</span>
+    </div>
+    <div class="nav-item" onclick="sendPrompt('Buka modul Zikir')">
+      <i class="ti ti-rosette" aria-hidden="true"></i>
+      <span>Zikir</span>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="theme-color" content="#fbfaf6">
+<title>Menu — Quran Hub</title>
+<link rel="stylesheet" href="../shared-responsive.css">
+<script src="../shared-responsive.js" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #B8860B; --gold-light: #DAA520; --gold-bg: rgba(218,165,32,0.08);
+  --gold-border: rgba(184,134,11,0.2); --bg: #fbfaf6; --bg-card: #ffffff;
+  --text: #1a1a1a; --text-muted: #6b7280; --text-light: #9ca3af;
+  --border: #e5e7eb; --radius: 12px; --radius-sm: 8px; --shadow: 0 1px 3px rgba(0,0,0,0.06);
+  --font-sans: 'DM Sans', system-ui, sans-serif;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --success: #16a34a; --success-bg: #f0fdf4; --warning: #d97706;
+}
+[data-theme="dark"] {
+  --bg: #1a1a2e; --bg-card: #16213e; --text: #e2e8f0;
+  --text-muted: #94a3b8; --text-light: #64748b;
+  --border: #334155; --shadow: 0 1px 3px rgba(0,0,0,0.3);
+  --gold-bg: rgba(218,165,32,0.12); --gold-border: rgba(184,134,11,0.3);
+}
+[data-theme="sepia"] {
+  --bg: #f8f0e3; --bg-card: #fefcf5; --text: #3b2f1e;
+  --text-muted: #8b7d6b; --text-light: #a09080;
+  --border: #d4c9b8; --shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font-sans); background: var(--bg); color: var(--text);
+  line-height: 1.6; font-size: 14px; min-height: 100vh;
+  transition: background 0.2s, color 0.2s;
+}
+.container { max-width: 480px; margin: 0 auto; padding: 0 0 calc(56px + var(--safe-bottom) + 16px); }
+
+/* Header */
+.page-header {
+  background: var(--gold-bg); border-bottom: 1px solid var(--gold-border);
+  padding: 16px 20px; display: flex; align-items: center; gap: 12px;
+}
+.page-header h1 { font-size: 18px; font-weight: 600; flex: 1; }
+
+/* Menu sections */
+.section { padding: 16px 20px; }
+.section-title {
+  font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--text-light); margin-bottom: 10px;
+}
+.menu-card {
+  background: var(--bg-card); border-radius: var(--radius-sm); box-shadow: var(--shadow);
+  border: 1px solid var(--border); margin-bottom: 8px; overflow: hidden;
+  transition: box-shadow 0.15s;
+}
+.menu-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.menu-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px; cursor: pointer; user-select: none;
+}
+.menu-header:active { background: var(--gold-bg); }
+.menu-header .icon { font-size: 22px; flex-shrink: 0; }
+.menu-header .info { flex: 1; }
+.menu-header .info .label { font-weight: 500; font-size: 14px; }
+.menu-header .info .desc { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+.menu-header .arrow { font-size: 12px; color: var(--text-light); transition: transform 0.2s; }
+.menu-card.open .arrow { transform: rotate(180deg); }
+.menu-body {
+  display: none; padding: 0 16px 16px; border-top: 1px solid var(--border);
+  margin-top: 0;
+}
+.menu-card.open .menu-body { display: block; }
+
+/* Form elements */
+label { display: block; font-size: 12px; font-weight: 500; margin-bottom: 4px; color: var(--text-muted); margin-top: 10px; }
+label:first-child { margin-top: 0; }
+select, input[type="text"] {
+  width: 100%; padding: 9px 12px; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); font-size: 13px; font-family: var(--font-sans);
+  background: var(--bg-card); color: var(--text); outline: none;
+}
+select:focus, input:focus { border-color: var(--gold); }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 9px 18px; border-radius: var(--radius-sm); border: none; cursor: pointer;
+  font-size: 13px; font-weight: 500; font-family: var(--font-sans); transition: opacity 0.15s;
+}
+.btn:hover { opacity: 0.85; }
+.btn-gold { background: var(--gold); color: #fff; }
+.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+.btn-success { background: var(--success); color: #fff; }
+.btn-danger { background: #dc2626; color: #fff; }
+.btn-sm { padding: 6px 14px; font-size: 12px; }
+.btn-block { width: 100%; margin-top: 10px; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Status */
+.status-msg {
+  font-size: 12px; padding: 6px 0; min-height: 20px; color: var(--success);
+}
+.status-msg.error { color: #dc2626; }
+.status-msg.muted { color: var(--text-muted); }
+
+/* Theme selector */
+.theme-grid { display: flex; gap: 8px; margin-top: 10px; }
+.theme-opt {
+  flex: 1; border: 2px solid var(--border); border-radius: var(--radius-sm);
+  padding: 10px; text-align: center; cursor: pointer; font-size: 12px;
+  transition: border-color 0.15s; background: var(--bg-card);
+}
+.theme-opt:hover { border-color: var(--gold-light); }
+.theme-opt.active { border-color: var(--gold); background: var(--gold-bg); font-weight: 600; }
+.theme-opt .preview { font-size: 24px; display: block; margin-bottom: 4px; }
+
+/* Sync log */
+.sync-log { font-size: 11px; color: var(--text-muted); margin-top: 8px; max-height: 100px; overflow-y: auto; }
+.sync-log div { padding: 2px 0; }
+
+/* Backup */
+.backup-actions { display: flex; gap: 8px; margin-top: 10px; }
+.backup-actions .btn { flex: 1; }
+
+/* Modal */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+  z-index: 100; align-items: center; justify-content: center;
+}
+.modal-overlay.active { display: flex; }
+.modal {
+  background: var(--bg-card); border-radius: var(--radius);
+  padding: 24px; max-width: 360px; width: 90%; box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+.modal h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+.modal p { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
+.modal .btn-row { display: flex; gap: 8px; }
+.modal .btn-row .btn { flex: 1; }
+
+/* Toast */
+.toast {
+  position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  padding: 10px 20px; font-size: 13px; z-index: 200;
+  display: none; max-width: 400px; text-align: center;
+}
+.toast.show { display: block; }
+
+/* Bottom nav */
+.nav-bar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
+  background: var(--bg-card); border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-around;
+  height: 56px; padding-bottom: var(--safe-bottom);
+}
+.nav-item {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  text-decoration: none; font-size: 10px; color: var(--text-light); padding: 4px 12px;
+}
+.nav-item .nav-icon { font-size: 20px; font-style: normal; }
+.nav-item.active { color: var(--gold); }
+.nav-item:hover { color: var(--text); }
+
+/* File input hidden */
+.file-input-hidden { display: none; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 360px) {
+  .page-header { padding: 14px 12px 8px; }
+  .page-header h1 { font-size: 17px; }
+  .menu-grid { grid-template-columns: 1fr; gap: 8px; padding: 12px; }
+  .menu-card { padding: 14px; }
+  .menu-card-title { font-size: 14px; }
+}
+@media (max-width: 480px) {
+  .container { max-width: 100%; }
+  .menu-grid { gap: 10px; padding: 14px; }
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  .page-header { padding: 8px 16px 4px; }
+  .page-header h1 { font-size: 16px; }
+  .menu-grid { padding: 8px 16px; gap: 6px; }
+  .menu-card { padding: 10px; min-height: auto; }
+  .menu-card-desc { display: none; }
+  .container { padding: 0 0 calc(48px + var(--safe-bottom) + 8px); }
+}
+@media (min-width: 640px) and (max-width: 1024px) {
+  .menu-grid { grid-template-columns: repeat(2, 1fr); padding: 20px 24px; }
+}
+@media (min-width: 1024px) {
+  .menu-grid { grid-template-columns: repeat(3, 1fr); max-width: 800px; margin: 0 auto; }
+}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<div class="container">
+
+  <div class="page-header">
+    <h1>⚙️ Menu</h1>
+  </div>
+
+  <!-- Tema -->
+  <div class="section">
+    <div class="section-title">Paparan</div>
+    <div class="menu-card" id="card-tema">
+      <div class="menu-header" data-toggle="card-tema">
+        <span class="icon">🎨</span>
+        <span class="info">
+          <span class="label">Tema</span>
+          <span class="desc">Tukar mod cahaya / malam / sepia</span>
+        </span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="menu-body">
+        <div class="theme-grid" id="theme-grid">
+          <div class="theme-opt" data-theme="light"><span class="preview">☀️</span>Cahaya</div>
+          <div class="theme-opt" data-theme="sepia"><span class="preview">🟤</span>Sepia</div>
+          <div class="theme-opt" data-theme="dark"><span class="preview">🌙</span>Malam</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sync -->
+  <div class="section">
+    <div class="section-title">Data</div>
+    <div class="menu-card" id="card-sync">
+      <div class="menu-header" data-toggle="card-sync">
+        <span class="icon">🔄</span>
+        <span class="info">
+          <span class="label">Sync</span>
+          <span class="desc">Segarkan data & cache seluruh sistem</span>
+        </span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="menu-body">
+        <button class="btn btn-gold btn-block" id="btn-sync">Mula Sync</button>
+        <div class="sync-log" id="sync-log"></div>
+        <div class="status-msg muted" id="sync-status">Tekan untuk segarkan semula</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tetapan GMT: Bandar -->
+  <div class="section">
+    <div class="section-title">Waktu</div>
+    <div class="menu-card" id="card-gmt">
+      <div class="menu-header" data-toggle="card-gmt">
+        <span class="icon">🌍</span>
+        <span class="info">
+          <span class="label">Tetapan GMT: Bandar</span>
+          <span class="desc">Laraskan zon waktu & lokasi</span>
+        </span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="menu-body">
+        <label>Zon Waktu (GMT)</label>
+        <select id="gmt-offset">
+          <option value="-12">GMT-12</option>
+          <option value="-11">GMT-11</option>
+          <option value="-10">GMT-10</option>
+          <option value="-9">GMT-9</option>
+          <option value="-8">GMT-8</option>
+          <option value="-7">GMT-7</option>
+          <option value="-6">GMT-6</option>
+          <option value="-5">GMT-5</option>
+          <option value="-4">GMT-4</option>
+          <option value="-3">GMT-3</option>
+          <option value="-2">GMT-2</option>
+          <option value="-1">GMT-1</option>
+          <option value="0">GMT±0</option>
+          <option value="1">GMT+1</option>
+          <option value="2">GMT+2</option>
+          <option value="3">GMT+3</option>
+          <option value="4">GMT+4</option>
+          <option value="5">GMT+5</option>
+          <option value="6">GMT+6</option>
+          <option value="7">GMT+7</option>
+          <option value="8" selected>GMT+8 (Malaysia)</option>
+          <option value="9">GMT+9</option>
+          <option value="10">GMT+10</option>
+          <option value="11">GMT+11</option>
+          <option value="12">GMT+12</option>
+        </select>
+        <label>Nama Bandar</label>
+        <input type="text" id="gmt-city" placeholder="Contoh: Kuala Lumpur" maxlength="50">
+        <button class="btn btn-gold btn-block" id="btn-save-gmt">Simpan Tetapan</button>
+        <div class="status-msg" id="gmt-status"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Backup -->
+  <div class="section">
+    <div class="section-title">Penyelenggaraan</div>
+    <div class="menu-card" id="card-backup">
+      <div class="menu-header" data-toggle="card-backup">
+        <span class="icon">💾</span>
+        <span class="info">
+          <span class="label">Backup</span>
+          <span class="desc">Eksport / import data seluruh sistem</span>
+        </span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="menu-body">
+        <div class="backup-actions">
+          <button class="btn btn-gold" id="btn-export">📤 Eksport</button>
+          <button class="btn btn-outline" id="btn-import">📥 Import</button>
+        </div>
+        <input type="file" id="file-input" class="file-input-hidden" accept=".json">
+        <div class="status-msg" id="backup-status"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin -->
+  <div class="section">
+    <div class="section-title">Pengurusan</div>
+    <div class="menu-card">
+      <a href="../admin/" style="text-decoration:none;color:inherit">
+        <div class="menu-header" style="cursor:pointer">
+          <span class="icon">👑</span>
+          <span class="info">
+            <span class="label">Admin Panel</span>
+            <span class="desc">Urus data doa, kewangan & tetapan sistem</span>
+          </span>
+          <span class="arrow" style="transform:none">→</span>
+        </div>
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<nav class="nav-bar">
+  <a class="nav-item" href="../index.html"><span class="nav-icon">🏠</span><span>Dashboard</span></a>
+  <a class="nav-item" href="../quran.html"><span class="nav-icon">📖</span><span>Quran</span></a>
+  <a class="nav-item" href="../sistem-vault/index.html"><span class="nav-icon">🔐</span><span>Vault</span></a>
+  <a class="nav-item" href="../sistem-doa/index.html"><span class="nav-icon">🤲</span><span>Doa</span></a>
+  <a class="nav-item" href="../sistem-kewangan/index.html"><span class="nav-icon">💰</span><span>Kewangan</span></a>
+  <a class="nav-item active" href="#"><span class="nav-icon">⚙️</span><span>Menu</span></a>
+</nav>
+
+<div class="modal-overlay" id="modal-confirm">
+  <div class="modal">
+    <h3 id="modal-title">Confirm</h3>
+    <p id="modal-desc">Are you sure?</p>
+    <div class="btn-row">
+      <button class="btn btn-outline" id="modal-cancel">Batal</button>
+      <button class="btn btn-danger" id="modal-confirm-btn">Teruskan</button>
+    </div>
+  </div>
+</div>
+
+<script defer>
+function $(id) { return document.getElementById(id); }
+function escHtml(s) {
+  if (!s) return '';
+  var d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+/* ─── Toast ─── */
+function showToast(msg, isError) {
+  var t = $('toast');
+  t.textContent = msg;
+  t.style.borderColor = isError ? '#dc2626' : 'var(--border)';
+  t.classList.add('show');
+  clearTimeout(t._hide);
+  t._hide = setTimeout(function() { t.classList.remove('show'); }, 3000);
+}
+
+/* ─── Accordion ─── */
+document.querySelectorAll('[data-toggle]').forEach(function(el) {
+  el.addEventListener('click', function() {
+    var id = this.dataset.toggle;
+    var card = $(id);
+    if (card) card.classList.toggle('open');
+  });
+});
+
+/* ─── Theme ─── */
+function applyTheme(name) {
+  document.documentElement.setAttribute('data-theme', name);
+  try {
+    localStorage.setItem('quran_theme', name);
+  } catch(e) {}
+  var meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) {
+    var colors = { light: '#fbfaf6', sepia: '#f8f0e3', dark: '#1a1a2e' };
+    meta.content = colors[name] || '#fbfaf6';
+  }
+  $('theme-grid').querySelectorAll('.theme-opt').forEach(function(el) {
+    el.classList.toggle('active', el.dataset.theme === name);
+  });
+}
+
+function loadTheme() {
+  var saved = 'light';
+  try { saved = localStorage.getItem('quran_theme') || 'light'; } catch(e) {}
+  applyTheme(saved);
+}
+
+$('theme-grid').addEventListener('click', function(e) {
+  var opt = e.target.closest('.theme-opt');
+  if (opt) applyTheme(opt.dataset.theme);
+});
+
+/* ─── Sync ─── */
+$('btn-sync').addEventListener('click', async function() {
+  var btn = this;
+  var log = $('sync-log');
+  var status = $('sync-status');
+  btn.disabled = true;
+  btn.textContent = '⏳ Menyegarkan...';
+  log.textContent = '';
+  status.className = 'status-msg muted';
+  status.textContent = '';
+
+  function logMsg(msg) {
+    var d = document.createElement('div');
+    d.textContent = msg;
+    log.appendChild(d);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  // Step 1: Clear SW caches
+  try {
+    if ('caches' in window) {
+      var keys = await caches.keys();
+      logMsg('📦 Cache ditemui: ' + keys.length);
+      for (var k of keys) {
+        await caches.delete(k);
+        logMsg('  🗑 Padam: ' + k);
+      }
+    }
+  } catch(e) {
+    logMsg('  ❌ Gagal padam cache: ' + e.message);
+  }
+
+  // Step 2: Clear prayer times from localStorage
+  try {
+    localStorage.removeItem('quran_location');
+    logMsg('📍 Data waktu solat dikosongkan');
+  } catch(e) {}
+
+  // Step 3: Clear vault salt (force re-setup? no, keep vault data)
+  logMsg('🔐 Data vault dikekalkan');
+
+  // Step 4: Re-register SW
+  if ('serviceWorker' in navigator) {
+    try {
+      var reg = await navigator.serviceWorker.getRegistration();
+      if (reg) {
+        await reg.unregister();
+        logMsg('🔄 SW didaftar semula');
+      }
+      await navigator.serviceWorker.register('../sw.js');
+      logMsg('✅ Service Worker aktif');
+    } catch(e) {
+      logMsg('  ❌ SW: ' + e.message);
+    }
+  }
+
+  status.className = 'status-msg';
+  status.textContent = '✅ Sync selesai! Muat semula dashboard untuk kesan perubahan.';
+  btn.disabled = false;
+  btn.textContent = 'Mula Sync';
+});
+
+/* ─── GMT ─── */
+function loadGMT() {
+  try {
+    var data = JSON.parse(localStorage.getItem('quran_gmt') || '{}');
+    if (data.offset !== undefined) $('gmt-offset').value = data.offset;
+    if (data.city) $('gmt-city').value = data.city;
+  } catch(e) {}
+}
+
+$('btn-save-gmt').addEventListener('click', function() {
+  var offset = parseInt($('gmt-offset').value, 10);
+  var city = $('gmt-city').value.trim() || 'Kuala Lumpur';
+  try {
+    localStorage.setItem('quran_gmt', JSON.stringify({ offset: offset, city: city }));
+    $('gmt-status').textContent = '✅ Disimpan: GMT' + (offset >= 0 ? '+' : '') + offset + ' — ' + escHtml(city);
+  } catch(e) {
+    $('gmt-status').textContent = '❌ Gagal simpan';
+  }
+});
+
+/* ─── Backup ─── */
+$('btn-export').addEventListener('click', function() {
+  var data = {};
+  try {
+    for (var i = 0; i < localStorage.length; i++) {
+      var key = localStorage.key(i);
+      if (key.startsWith('quran_') || key.startsWith('sistem_')) {
+        data[key] = localStorage.getItem(key);
+      }
+    }
+  } catch(e) {}
+
+  var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'quran-hub-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  $('backup-status').textContent = '✅ Backup dieksport';
+});
+
+$('btn-import').addEventListener('click', function() {
+  $('file-input').click();
+});
+
+$('file-input').addEventListener('change', function(e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(event) {
+    try {
+      var data = JSON.parse(event.target.result);
+      var count = 0;
+      for (var key in data) {
+        if (data.hasOwnProperty(key)) {
+          localStorage.setItem(key, data[key]);
+          count++;
+        }
+      }
+      $('backup-status').textContent = '✅ Diimport: ' + count + ' item. Muat semula halaman.';
+      showToast('Backup dipulihkan — ' + count + ' item');
+    } catch(e) {
+      $('backup-status').textContent = '❌ Fail tidak sah';
+      showToast('Ralat: fail backup tidak sah', true);
+    }
+  };
+  reader.readAsText(file);
+  this.value = '';
+});
+
+/* ─── Init ─── */
+loadTheme();
+loadGMT();
+</script>
+</body>
+</html>
